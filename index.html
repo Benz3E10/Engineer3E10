@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>⚡ VOLT QUIZ — แบบทดสอบวิศวกรรมไฟฟ้า</title>
+<style>
+  :root{
+    --bg:#0f1620; --bg-2:#0b1018;
+    --panel:#16212f; --panel-2:#1d2a3a; --panel-3:#11202a;
+    --border:#25344a; --border-2:#2c3d54;
+    --text:#e8eef5; --muted:#8fa3bf; --muted-2:#6a7d97;
+    --accent:#ffcf4d; --accent-2:#ff9d4d;
+    --blue:#4dc4ff; --green:#4caf7d; --red:#e0556b; --purple:#a98bff;
+    --radius:14px;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --mono:'Consolas','SFMono-Regular','Menlo',monospace;
+    --sans:'Tahoma','Sarabun','Segoe UI',sans-serif;
+  }
+  [data-theme="light"]{
+    --bg:#e9eef4; --bg-2:#dde5ee;
+    --panel:#ffffff; --panel-2:#f1f5fa; --panel-3:#eef4fb;
+    --border:#d2dce8; --border-2:#c0cedd;
+    --text:#16222f; --muted:#5a6b7e; --muted-2:#7a8a9c;
+    --accent:#d98a00; --accent-2:#e06a1a;
+    --blue:#1d8fcc; --green:#1f9166; --red:#cf3a52; --purple:#7a5bd6;
+    --shadow:0 8px 24px rgba(40,60,90,.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,207,77,.06), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(77,196,255,.05), transparent 60%),
+      var(--bg);
+    color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased;
+    overflow-x:hidden; -webkit-text-size-adjust:100%; text-size-adjust:100%;
+    -webkit-tap-highlight-color:transparent;
+  }
+  img,svg,video{max-width:100%; height:auto;}
+  .app{display:flex; min-height:100vh;}
+  .sidebar{width:268px; flex-shrink:0; background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border-right:1px solid var(--border); display:flex; flex-direction:column;
+    position:sticky; top:0; height:100vh; overflow-y:auto; z-index:40;}
+  .main{flex:1; min-width:0; display:flex; flex-direction:column;}
+  .content{flex:1; padding:28px 26px 60px; max-width:920px; width:100%; margin:0 auto;}
+  .brand{padding:20px 18px 14px; display:flex; align-items:center; gap:11px; border-bottom:1px solid var(--border);}
+  .brand .bolt{width:42px; height:42px; border-radius:11px; flex-shrink:0;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 0 18px rgba(255,157,77,.35);}
+  .brand .bt{line-height:1.1;}
+  .brand .bt .n{font-weight:800; font-size:1.15rem; letter-spacing:.5px; color:var(--text);}
+  .brand .bt .s{font-size:.68rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase;}
+  .nav{padding:12px 12px 4px;}
+  .nav-btn{display:flex; align-items:center; gap:11px; width:100%; background:transparent;
+    border:1px solid transparent; color:var(--muted); padding:10px 12px; border-radius:10px; cursor:pointer;
+    font-family:var(--sans); font-size:.93rem; text-align:left; margin-bottom:3px; transition:.15s;}
+  .nav-btn .ic{width:20px; text-align:center; font-size:1.05rem;}
+  .nav-btn:hover{background:var(--panel-2); color:var(--text);}
+  .nav-btn.active{background:var(--panel-2); color:var(--accent); border-color:var(--border-2); font-weight:700;}
+  .side-sec{padding:14px 16px; border-top:1px solid var(--border); margin-top:6px;}
+  .side-sec .title{font-size:.7rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted-2); margin-bottom:12px; font-weight:700;}
+  .field{margin-bottom:13px;}
+  .field label{display:block; font-size:.78rem; color:var(--muted); margin-bottom:5px;}
+  .field select{width:100%; background:var(--panel-3); color:var(--text); border:1px solid var(--border-2);
+    border-radius:9px; padding:9px 10px; font-family:var(--sans); font-size:.88rem; cursor:pointer;}
+  .field select:focus{outline:none; border-color:var(--accent);}
+  .seg{display:flex; gap:6px; background:var(--panel-3); border:1px solid var(--border-2); border-radius:10px; padding:4px;}
+  .seg button{flex:1; background:transparent; border:none; color:var(--muted); padding:7px 6px; border-radius:7px;
+    cursor:pointer; font-family:var(--sans); font-size:.8rem; transition:.15s;}
+  .seg button.on{background:var(--accent); color:#1a1306; font-weight:700;}
+  .toggle-row{display:flex; align-items:center; justify-content:space-between; padding:7px 0;}
+  .toggle-row span{font-size:.85rem; color:var(--muted);}
+  .sw{width:42px; height:24px; border-radius:12px; background:var(--panel-3); border:1px solid var(--border-2);
+    position:relative; cursor:pointer; transition:.2s; flex-shrink:0;}
+  .sw::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:var(--muted); transition:.2s;}
+  .sw.on{background:linear-gradient(135deg,var(--accent),var(--accent-2)); border-color:transparent;}
+  .sw.on::after{left:20px; background:#1a1306;}
+  .start-side{width:100%; margin-top:8px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#1a1306;
+    border:none; padding:12px; border-radius:11px; font-weight:800; font-size:.95rem; cursor:pointer;
+    font-family:var(--sans); box-shadow:0 6px 18px rgba(255,157,77,.28);}
+  .start-side:hover{filter:brightness(1.06);}
+  .side-foot{margin-top:auto; padding:14px 16px; font-size:.7rem; color:var(--muted-2); border-top:1px solid var(--border);}
+  .topbar{display:none; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border);
+    background:var(--panel); position:sticky; top:0; z-index:30;}
+  .menu-btn{background:var(--panel-2); border:1px solid var(--border-2); color:var(--text); width:40px; height:40px;
+    border-radius:10px; font-size:1.2rem; cursor:pointer;}
+  .topbar .tt{font-weight:800; letter-spacing:.5px;}
+  .overlay{display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:35;}
+  .screen{display:none;}
+  .screen.active{display:block; animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+  .hero{background:radial-gradient(600px 200px at 90% 0%, rgba(255,207,77,.12), transparent 70%),
+    linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--border); border-radius:18px;
+    padding:30px 28px; margin-bottom:22px; position:relative; overflow:hidden; box-shadow:var(--shadow);}
+  .hero::before{content:""; position:absolute; right:-40px; top:-40px; width:180px; height:180px; border-radius:50%;
+    background:radial-gradient(circle,rgba(255,157,77,.18),transparent 70%);}
+  .hero h1{font-size:1.9rem; margin:0 0 8px; letter-spacing:.5px;}
+  .hero h1 .g{background:linear-gradient(90deg,var(--accent),var(--accent-2)); -webkit-background-clip:text;
+    background-clip:text; -webkit-text-fill-color:transparent;}
+  .hero p{color:var(--muted); margin:0 0 20px; max-width:560px; line-height:1.6; font-size:.96rem;}
+  .stat-chips{display:flex; gap:12px; flex-wrap:wrap;}
+  .chip{background:var(--panel-3); border:1px solid var(--border-2); border-radius:12px; padding:12px 16px; min-width:110px;}
+  .chip .v{font-size:1.5rem; font-weight:800; color:var(--accent);}
+  .chip .l{font-size:.72rem; color:var(--muted); margin-top:2px;}
+  .home-actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:22px;}
+  .big-btn{flex:1; min-width:200px; border:none; cursor:pointer; font-family:var(--sans); padding:16px 18px;
+    border-radius:13px; font-weight:800; font-size:1rem; display:flex; align-items:center; justify-content:center; gap:9px; transition:.15s;}
+  .big-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#1a1306; box-shadow:0 8px 22px rgba(255,157,77,.28);}
+  .big-btn.ghost{background:var(--panel-2); color:var(--text); border:1px solid var(--border-2);}
+  .big-btn:hover{transform:translateY(-2px);}
+  .sec-head{display:flex; align-items:center; justify-content:space-between; margin:30px 0 14px;}
+  .sec-head h2{font-size:1.15rem; margin:0; display:flex; align-items:center; gap:9px;}
+  .sec-head .hint{font-size:.78rem; color:var(--muted);}
+  .level-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .lv-chip{border:1px solid var(--border-2); background:var(--panel-2); color:var(--muted); padding:8px 13px;
+    border-radius:20px; cursor:pointer; font-size:.82rem; font-family:var(--sans); transition:.15s; display:flex; align-items:center; gap:7px;}
+  .lv-chip .dot{width:9px; height:9px; border-radius:50%;}
+  .lv-chip:hover{border-color:var(--accent); color:var(--text);}
+  .lv-chip.sel{border-color:var(--accent); background:var(--panel-3); color:var(--text); box-shadow:0 0 0 1px var(--accent) inset;}
+  .b-basic{background:var(--green);} .b-beginner{background:var(--blue);}
+  .b-medium{background:var(--accent);} .b-advanced{background:var(--accent-2);} .b-expert{background:var(--red);}
+  .cat-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px;}
+  .cat-card{background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--border);
+    border-radius:14px; padding:18px; cursor:pointer; transition:.18s; position:relative; overflow:hidden;}
+  .cat-card:hover{transform:translateY(-3px); border-color:var(--accent); box-shadow:var(--shadow);}
+  .cat-card .ci{width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:1.5rem; margin-bottom:12px; background:var(--panel-3); border:1px solid var(--border-2);}
+  .cat-card .cn{font-weight:800; font-size:1rem; margin-bottom:5px; line-height:1.3;}
+  .cat-card .cd{font-size:.8rem; color:var(--muted); line-height:1.5; margin-bottom:12px; min-height:36px;}
+  .cat-card .cmeta{display:flex; align-items:center; justify-content:space-between; font-size:.74rem; color:var(--muted-2);}
+  .cat-card .cgo{color:var(--accent); font-weight:700;}
+  .quiz-top{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; flex-wrap:wrap;}
+  .quiz-tag{display:flex; align-items:center; gap:9px; font-size:.85rem; color:var(--muted); flex-wrap:wrap;}
+  .pill{background:var(--panel-2); border:1px solid var(--border-2); padding:5px 11px; border-radius:18px;
+    font-size:.76rem; color:var(--text); display:inline-flex; align-items:center; gap:6px;}
+  .pill.lv{border-color:var(--accent); color:var(--accent);}
+  .timer{font-family:var(--mono); font-size:.92rem; color:var(--blue); display:flex; align-items:center; gap:6px;}
+  .progress-bar{height:9px; background:var(--panel-2); border-radius:6px; overflow:hidden; margin-bottom:8px; border:1px solid var(--border);}
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); transition:width .35s ease; border-radius:6px;}
+  .q-counter{text-align:right; color:var(--muted); font-size:.82rem; margin-bottom:14px;}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow);}
+  .q-cat-badge{display:inline-flex; align-items:center; gap:7px; font-size:.74rem; color:var(--muted); background:var(--panel-3);
+    border:1px solid var(--border-2); padding:4px 10px; border-radius:14px; margin-bottom:14px;}
+  .question-text{font-size:1.18rem; font-weight:700; line-height:1.55; margin-bottom:20px;}
+  .option{display:flex; align-items:center; gap:12px; background:var(--panel-2); border:1px solid var(--border-2);
+    border-radius:11px; padding:13px 15px; margin-bottom:11px; cursor:pointer; transition:.15s;}
+  .option:hover{border-color:var(--accent); background:var(--panel-3);}
+  .option .letter{width:28px; height:28px; border-radius:50%; background:var(--panel-3); border:1px solid var(--border-2);
+    display:flex; align-items:center; justify-content:center; font-size:.86rem; flex-shrink:0; font-weight:700;}
+  .option .otxt{font-size:.96rem;}
+  .option.sel{border-color:var(--accent); background:var(--panel-3); box-shadow:0 0 0 1px var(--accent) inset;}
+  .option.sel .letter{background:var(--accent); color:#1a1306;}
+  .option.correct{border-color:var(--green); background:rgba(76,175,125,.12);}
+  .option.correct .letter{background:var(--green); color:#08130d;}
+  .option.wrong{border-color:var(--red); background:rgba(224,85,107,.12);}
+  .option.wrong .letter{background:var(--red); color:#1a0509;}
+  .option.lock{cursor:default; pointer-events:none;}
+  .option .mk{margin-left:auto; font-size:1.05rem;}
+  .exp{margin-top:16px; border-radius:11px; overflow:hidden; border:1px solid var(--border-2); display:none;}
+  .exp.show{display:block; animation:fade .3s ease;}
+  .exp-row{padding:12px 15px; font-size:.9rem; line-height:1.6; border-bottom:1px solid var(--border);}
+  .exp-row:last-child{border-bottom:none;}
+  .exp-label{display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.5px; margin-right:8px;
+    padding:2px 8px; border-radius:6px; vertical-align:middle;}
+  .exp-formula{background:rgba(77,196,255,.07);}
+  .exp-formula .exp-label{background:rgba(77,196,255,.2); color:var(--blue);}
+  .exp-formula .ftext{font-family:var(--mono); color:var(--blue); font-size:.95rem;}
+  .exp-steps{background:rgba(255,207,77,.05);}
+  .exp-steps .exp-label{background:rgba(255,207,77,.18); color:var(--accent);}
+  .exp-tip{background:rgba(169,139,255,.06);}
+  .exp-tip .exp-label{background:rgba(169,139,255,.2); color:var(--purple);}
+  .nav-row{display:flex; justify-content:space-between; gap:12px; margin-top:20px;}
+  .btn{border:none; cursor:pointer; font-family:var(--sans); padding:11px 20px; border-radius:10px; font-weight:700; font-size:.93rem; transition:.15s;}
+  .btn-accent{background:var(--accent); color:#1a1306;}
+  .btn-accent:hover{filter:brightness(1.07);}
+  .btn-accent:disabled{opacity:.4; cursor:not-allowed; filter:none;}
+  .btn-ghost{background:var(--panel-2); color:var(--text); border:1px solid var(--border-2);}
+  .btn-ghost:hover{border-color:var(--accent);}
+  .result-card{text-align:center; padding:32px 24px;}
+  .ring{width:170px; height:170px; border-radius:50%; margin:6px auto 16px; display:flex; align-items:center; justify-content:center; position:relative;}
+  .ring .inner{width:132px; height:132px; border-radius:50%; background:var(--panel); display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .ring .pct{font-size:2.2rem; font-weight:800; color:var(--accent); line-height:1;}
+  .ring .sc{font-size:.8rem; color:var(--muted); margin-top:4px;}
+  .res-msg{font-size:1.05rem; color:var(--text); margin:4px 0 6px; font-weight:700;}
+  .res-sub{color:var(--muted); font-size:.88rem; margin-bottom:20px;}
+  .res-stats{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:22px;}
+  .res-stat{background:var(--panel-3); border:1px solid var(--border-2); border-radius:11px; padding:11px 16px; min-width:90px;}
+  .res-stat .v{font-size:1.25rem; font-weight:800;}
+  .res-stat .l{font-size:.72rem; color:var(--muted);}
+  .res-btns{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .pulse{animation:pulse 1.4s ease infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.04);}}
+  .review-list{text-align:left; margin-top:30px;}
+  .review-list h3{font-size:1.05rem; color:var(--accent); margin:0 0 6px; display:flex; align-items:center; gap:8px;}
+  .review-item{border-top:1px solid var(--border); padding:16px 0;}
+  .review-item .rq{font-weight:700; margin-bottom:9px; line-height:1.5; font-size:.96rem;}
+  .ra{font-size:.88rem; padding:6px 11px; border-radius:8px; margin-bottom:5px; display:flex; gap:8px; align-items:flex-start;}
+  .ra.ok{background:rgba(76,175,125,.1); color:var(--green);}
+  .ra.no{background:rgba(224,85,107,.1); color:var(--red);}
+  .ra.tru{background:rgba(76,175,125,.07); color:var(--green);}
+  .stats-card{padding:24px;}
+  .stat-bar-row{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+  .stat-bar-row .nm{width:42%; font-size:.86rem; display:flex; align-items:center; gap:7px;}
+  .stat-bar{flex:1; height:11px; background:var(--panel-3); border-radius:6px; overflow:hidden; border:1px solid var(--border-2);}
+  .stat-bar i{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); border-radius:6px;}
+  .stat-bar-row .pv{width:46px; text-align:right; font-size:.82rem; font-weight:700; color:var(--accent);}
+  .empty{text-align:center; color:var(--muted); padding:40px 20px; font-size:.92rem; line-height:1.6;}
+  .info-card{padding:24px; line-height:1.7; font-size:.93rem; color:var(--muted);}
+  .info-card h2{color:var(--text); margin-top:0;}
+  .info-card ul{padding-left:20px;} .info-card li{margin-bottom:6px;}
+  .info-card .k{color:var(--accent); font-weight:700;}
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--panel);
+    border:1px solid var(--accent); color:var(--text); padding:12px 20px; border-radius:11px; font-size:.88rem;
+    box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.3s; z-index:60;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  /* ===== AI Chat ===== */
+  .ai-ask-btn{margin-top:14px; background:var(--panel-3); border:1px dashed var(--border-2); color:var(--blue);
+    padding:9px 14px; border-radius:10px; cursor:pointer; font-family:var(--sans); font-size:.86rem; font-weight:700;
+    display:inline-flex; align-items:center; gap:7px; transition:.15s;}
+  .ai-ask-btn:hover{border-color:var(--blue); background:rgba(77,196,255,.08);}
+  .ai-modal{position:fixed; inset:0; z-index:70; display:none; align-items:center; justify-content:center;}
+  .ai-modal.open{display:flex;}
+  .ai-back{position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:blur(2px);}
+  .ai-panel{position:relative; width:100%; max-width:560px; height:min(80vh,640px); background:var(--panel);
+    border:1px solid var(--border); border-radius:18px; display:flex; flex-direction:column; box-shadow:var(--shadow);
+    margin:0 16px; overflow:hidden; animation:slideUp .25s ease;}
+  @keyframes slideUp{from{transform:translateY(24px); opacity:.5;} to{transform:none; opacity:1;}}
+  .ai-head{display:flex; align-items:center; gap:10px; padding:13px 15px; border-bottom:1px solid var(--border); flex-shrink:0;}
+  .ai-head .ttl{font-weight:800; display:flex; align-items:center; gap:7px; font-size:.98rem;}
+  .ai-head .sub{font-size:.7rem; color:var(--muted); margin-top:1px;}
+  .ai-head .spacer{flex:1;}
+  .ai-icon-btn{background:var(--panel-2); border:1px solid var(--border-2); color:var(--text); width:34px; height:34px;
+    border-radius:9px; cursor:pointer; font-size:.95rem; transition:.15s;}
+  .ai-icon-btn:hover{border-color:var(--accent);}
+  .ai-settings{padding:13px 15px; border-bottom:1px solid var(--border); display:none; background:var(--panel-2); flex-shrink:0;}
+  .ai-settings.show{display:block;}
+  .ai-settings .field{margin-bottom:10px;} .ai-settings .field:last-child{margin-bottom:0;}
+  .ai-settings label{font-size:.76rem; color:var(--muted); display:block; margin-bottom:5px;}
+  .ai-settings input{width:100%; background:var(--panel-3); border:1px solid var(--border-2); color:var(--text);
+    border-radius:9px; padding:8px 10px; font-family:var(--mono); font-size:.8rem;}
+  .ai-settings input:focus{outline:none; border-color:var(--accent);}
+  .ai-warn{font-size:.71rem; color:var(--muted); line-height:1.55; margin-top:7px;}
+  .ai-ctx{margin:11px 15px 0; padding:8px 12px; background:var(--panel-3); border:1px solid var(--border-2);
+    border-radius:10px; font-size:.78rem; color:var(--muted); line-height:1.5; display:none; flex-shrink:0;}
+  .ai-ctx.show{display:block;}
+  .ai-msgs{flex:1; overflow-y:auto; padding:14px 15px; display:flex; flex-direction:column; gap:10px;}
+  .ai-bubble{max-width:88%; padding:10px 13px; border-radius:13px; font-size:.9rem; line-height:1.6; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:anywhere;}
+  .ai-bubble.bot{align-self:flex-start; background:var(--panel-2); border:1px solid var(--border-2); border-top-left-radius:4px;}
+  .ai-bubble.me{align-self:flex-end; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#1a1306; border-top-right-radius:4px; font-weight:600;}
+  .ai-bubble.sys{align-self:center; background:transparent; color:var(--muted); font-size:.8rem; text-align:center; max-width:100%; padding:4px 8px;}
+  .ai-typing{align-self:flex-start; display:flex; gap:4px; padding:13px 15px; background:var(--panel-2); border:1px solid var(--border-2); border-radius:13px; border-top-left-radius:4px;}
+  .ai-typing i{width:7px; height:7px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite;}
+  .ai-typing i:nth-child(2){animation-delay:.2s;} .ai-typing i:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.3; transform:translateY(0);} 40%{opacity:1; transform:translateY(-3px);}}
+  .ai-chips{display:flex; gap:7px; padding:8px 15px 0; flex-wrap:wrap; flex-shrink:0;}
+  .ai-chip{background:var(--panel-3); border:1px solid var(--border-2); color:var(--muted); padding:6px 11px; border-radius:16px;
+    font-size:.75rem; cursor:pointer; font-family:var(--sans); transition:.15s;}
+  .ai-chip:hover{border-color:var(--accent); color:var(--text);}
+  .ai-input{display:flex; gap:8px; padding:12px 15px; border-top:1px solid var(--border); flex-shrink:0;
+    padding-bottom:max(12px,env(safe-area-inset-bottom));}
+  .ai-input textarea{flex:1; resize:none; background:var(--panel-3); border:1px solid var(--border-2); color:var(--text);
+    border-radius:11px; padding:10px 12px; font-family:var(--sans); font-size:.92rem; max-height:120px; line-height:1.45; overflow-y:auto;}
+  .ai-input textarea:focus{outline:none; border-color:var(--accent);}
+  .ai-send{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#1a1306; border:none; width:46px;
+    border-radius:11px; cursor:pointer; font-size:1.05rem; flex-shrink:0;}
+  .ai-send:disabled{opacity:.45; cursor:not-allowed;}
+  @media (max-width:640px){
+    .ai-modal{align-items:flex-end;}
+    .ai-panel{margin:0; max-width:none; height:88vh; border-radius:18px 18px 0 0; border-bottom:none;}
+  }
+
+  /* ===== Tablet & below: sidebar -> off-canvas drawer ===== */
+  @media (max-width:860px){
+    .sidebar{position:fixed; left:0; top:0; width:min(84vw,300px);
+      transform:translateX(-100%); transition:transform .25s ease; box-shadow:var(--shadow);
+      padding-bottom:env(safe-area-inset-bottom);}
+    .sidebar.open{transform:translateX(0);}
+    .topbar{display:flex; padding-left:max(16px,env(safe-area-inset-left)); padding-right:max(16px,env(safe-area-inset-right));}
+    .overlay.show{display:block;}
+    .content{padding:20px 16px 50px; padding-left:max(16px,env(safe-area-inset-left)); padding-right:max(16px,env(safe-area-inset-right));}
+    .hero{padding:24px 20px;} .hero h1{font-size:1.55rem;}
+    .question-text{font-size:1.06rem;}
+    .cat-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+  }
+
+  /* ===== Phones ===== */
+  @media (max-width:640px){
+    .content{padding:16px 14px 46px; padding-left:max(14px,env(safe-area-inset-left)); padding-right:max(14px,env(safe-area-inset-right));}
+    .hero{padding:22px 18px; border-radius:16px;}
+    .hero h1{font-size:1.5rem;} .hero p{font-size:.9rem;}
+    .stat-chips{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+    .chip{min-width:0;} .chip .v{font-size:1.3rem;}
+    .home-actions{flex-direction:column; gap:10px; margin-top:18px;}
+    .big-btn{min-width:0; width:100%; padding:14px;}
+    .sec-head{flex-wrap:wrap; gap:4px; margin:24px 0 12px;}
+    .sec-head h2{font-size:1.05rem;} .sec-head .hint{font-size:.72rem;}
+    .cat-grid{grid-template-columns:1fr; gap:11px;}
+    .cat-card{padding:16px;} .cat-card .cd{min-height:0;}
+    .card{padding:18px;}
+    .question-text{font-size:1.04rem;}
+    .option{padding:12px 13px;} .option .otxt{font-size:.92rem;}
+    .quiz-top{gap:8px;}
+    .ring{width:152px; height:152px;} .ring .inner{width:118px; height:118px;} .ring .pct{font-size:1.9rem;}
+    .result-card{padding:24px 16px;}
+    .res-stats{gap:8px;} .res-stat{min-width:0; flex:1 1 26%; padding:10px 8px;}
+    .res-stat .v{font-size:1.1rem;}
+    .res-btns{gap:8px;} .res-btns .btn{flex:1 1 auto;}
+    .nav-row{gap:8px;} .btn{padding:11px 15px; font-size:.88rem;}
+    .stat-bar-row .nm{width:50%; font-size:.8rem;}
+    .review-list h3{font-size:1rem;}
+    .exp-row{font-size:.86rem; padding:11px 13px;}
+  }
+
+  /* ===== Small phones ===== */
+  @media (max-width:380px){
+    .brand .bt .n{font-size:1.05rem;}
+    .hero h1{font-size:1.35rem;} .chip .v{font-size:1.15rem;}
+    .question-text{font-size:1rem;}
+    .lv-chip{font-size:.78rem; padding:7px 11px;}
+    .quiz-tag{gap:6px;} .quiz-tag .pill{font-size:.71rem; padding:4px 9px;}
+    .q-cat-badge{font-size:.7rem;}
+    .ring{width:138px; height:138px;} .ring .inner{width:106px; height:106px;} .ring .pct{font-size:1.7rem;}
+    .res-stat{flex:1 1 44%;}
+    .btn{padding:10px 12px; font-size:.85rem;}
+  }
+
+  /* ===== Large desktops ===== */
+  @media (min-width:1500px){
+    .content{max-width:1040px;}
+  }
+
+  /* ===== Short landscape: keep drawer scrollable ===== */
+  @media (max-height:560px){
+    .sidebar{overflow-y:auto;}
+  }
+
+  /* ===== Coarse pointers: enlarge tap targets ===== */
+  @media (pointer:coarse){
+    .nav-btn{padding:12px;} .option{min-height:50px;} .sw{width:46px; height:26px;}
+    .sw::after{width:20px; height:20px;} .sw.on::after{left:24px;}
+  }
+</style>
+</head>
+<body data-theme="dark">
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="bolt">⚡</div>
+      <div class="bt"><div class="n">VOLT QUIZ</div><div class="s">Electrical Engineering</div></div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn active" data-screen="home"><span class="ic">🏠</span> หน้าแรก</button>
+      <button class="nav-btn" data-screen="stats"><span class="ic">📊</span> สถิติของฉัน</button>
+      <button class="nav-btn" data-screen="info"><span class="ic">ℹ️</span> เกี่ยวกับ / วิธีใช้</button>
+      <button class="nav-btn" id="navAI"><span class="ic">🤖</span> ผู้ช่วย AI</button>
+    </div>
+    <div class="side-sec">
+      <div class="title">⚙️ ตั้งค่าแบบทดสอบ</div>
+      <div class="field"><label>หมวดหมู่วิชา</label><select id="selCat"></select></div>
+      <div class="field"><label>ระดับความยาก</label><select id="selLevel"></select></div>
+      <div class="field"><label>จำนวนข้อ</label>
+        <select id="selCount">
+          <option value="5">5 ข้อ</option>
+          <option value="10" selected>10 ข้อ</option>
+          <option value="15">15 ข้อ</option>
+          <option value="20">20 ข้อ</option>
+        </select>
+      </div>
+      <div class="field"><label>โหมดการทำ</label>
+        <div class="seg" id="segMode">
+          <button data-mode="practice" class="on">ฝึกฝน</button>
+          <button data-mode="exam">สอบจริง</button>
+        </div>
+      </div>
+      <button class="start-side" id="startSide">▶ เริ่มทำแบบทดสอบ</button>
+    </div>
+    <div class="side-sec">
+      <div class="title">🎛️ ตัวเลือกเพิ่มเติม</div>
+      <div class="toggle-row"><span>⏱️ จับเวลา</span><div class="sw" id="swTimer"></div></div>
+      <div class="toggle-row"><span>🔊 เสียงเอฟเฟกต์</span><div class="sw on" id="swSound"></div></div>
+      <div class="toggle-row"><span>🌗 โหมดสว่าง</span><div class="sw" id="swTheme"></div></div>
+    </div>
+    <div class="side-foot">VOLT QUIZ v2.0 · สร้างเพื่อ GitHub Pages<br>คลังคำถาม: <span id="footTotal">0</span> ข้อ · <span id="footCats">0</span> หมวด</div>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="tt">⚡ VOLT QUIZ</div>
+    </div>
+    <div class="content">
+      <section class="screen active" id="screen-home">
+        <div class="hero">
+          <h1>⚡ <span class="g">VOLT QUIZ</span></h1>
+          <p>แบบทดสอบความรู้วิศวกรรมไฟฟ้าครบทุกหมวด ตั้งแต่กฎของโอห์มจนถึงไฟฟ้ากระแสสลับและความปลอดภัย — เลือกหมวด เลือกระดับ 1–10 พร้อมเฉลยละเอียดทั้ง <b>สูตร · วิธีคิด · เกร็ดความรู้</b></p>
+          <div class="stat-chips">
+            <div class="chip"><div class="v" id="cTotal">0</div><div class="l">คำถามทั้งหมด</div></div>
+            <div class="chip"><div class="v" id="cCats">0</div><div class="l">หมวดหมู่</div></div>
+            <div class="chip"><div class="v" id="cBest">—</div><div class="l">คะแนนสูงสุด</div></div>
+            <div class="chip"><div class="v" id="cAtt">0</div><div class="l">ครั้งที่ทำ</div></div>
+          </div>
+          <div class="home-actions">
+            <button class="big-btn primary" id="quickStart">🎲 เริ่มแบบสุ่ม (ทุกหมวด)</button>
+            <button class="big-btn ghost" id="refreshStart">🔄 สุ่มชุดคำถามใหม่</button>
+          </div>
+        </div>
+        <div class="sec-head"><h2>🎚️ เลือกระดับความยาก</h2><span class="hint">1 = พื้นฐาน · 10 = ผู้เชี่ยวชาญ</span></div>
+        <div class="level-row" id="levelChips"></div>
+        <div class="sec-head"><h2>📚 เลือกหมวดหมู่วิชาไฟฟ้า</h2><span class="hint">แตะการ์ดเพื่อเริ่มทำทันที</span></div>
+        <div class="cat-grid" id="catGrid"></div>
+      </section>
+      <section class="screen" id="screen-quiz">
+        <div class="quiz-top">
+          <div class="quiz-tag">
+            <span class="pill" id="qPillCat">หมวด</span>
+            <span class="pill lv" id="qPillLv">ระดับ</span>
+            <span class="pill" id="qPillMode">โหมด</span>
+          </div>
+          <div class="timer" id="qTimer" style="display:none;">⏱️ <span id="timerTxt">00:00</span></div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+        <div class="q-counter" id="qCounter">ข้อ 1 / 10</div>
+        <div class="card">
+          <div class="q-cat-badge" id="qBadge"></div>
+          <div class="question-text" id="qText"></div>
+          <div id="qOptions"></div>
+          <div class="exp" id="qExp"></div>
+          <button class="ai-ask-btn" id="qAskAI" style="display:none;">🤖 ถาม AI เกี่ยวกับข้อนี้</button>
+          <div class="nav-row">
+            <button class="btn btn-ghost" id="quitBtn">✕ ออก</button>
+            <button class="btn btn-accent" id="nextBtn" disabled>ข้อถัดไป →</button>
+          </div>
+        </div>
+      </section>
+      <section class="screen" id="screen-result">
+        <div class="card result-card">
+          <div class="ring" id="ring"><div class="inner"><div class="pct" id="rPct">0%</div><div class="sc" id="rScore">0 / 0</div></div></div>
+          <div class="res-msg" id="rMsg"></div>
+          <div class="res-sub" id="rSub"></div>
+          <div class="res-stats" id="rStats"></div>
+          <div class="res-btns">
+            <button class="btn btn-accent" id="rNew">🔄 ลองชุดใหม่</button>
+            <button class="btn btn-ghost" id="rRetry">↻ ทำชุดเดิมซ้ำ</button>
+            <button class="btn btn-ghost" id="rHome">🏠 หน้าแรก</button>
+          </div>
+          <div class="review-list" id="reviewList"></div>
+        </div>
+      </section>
+      <section class="screen" id="screen-stats">
+        <div class="sec-head"><h2>📊 สถิติของฉัน</h2><span class="hint" id="statsAtt"></span></div>
+        <div class="card stats-card" id="statsBox"></div>
+      </section>
+      <section class="screen" id="screen-info">
+        <div class="sec-head"><h2>ℹ️ เกี่ยวกับ VOLT QUIZ</h2></div>
+        <div class="card info-card">
+          <h2>คุณสมบัติเด่น</h2>
+          <ul>
+            <li><span class="k">หมวดหมู่ย่อย</span> — เลือกเรียนเฉพาะเรื่อง เช่น ตัวเก็บประจุ ไฟ AC แม่เหล็กไฟฟ้า ความปลอดภัย ฯลฯ</li>
+            <li><span class="k">10 ระดับความยาก</span> — ปรับจากพื้นฐานถึงผู้เชี่ยวชาญ ระบบจะคัดคำถามให้เหมาะกับระดับ</li>
+            <li><span class="k">สุ่มชุดคำถามใหม่</span> — กดรีเฟรชเพื่อสลับคำถามชุดใหม่ได้ตลอด</li>
+            <li><span class="k">เฉลยละเอียด 3 ส่วน</span> — สูตร 📐 + วิธีคิดทีละขั้น 🧮 + เกร็ดความรู้ 💡</li>
+            <li><span class="k">2 โหมด</span> — "ฝึกฝน" เฉลยทันทีหลังตอบ / "สอบจริง" เฉลยรวมตอนจบ</li>
+            <li><span class="k">จับเวลา · เสียงเอฟเฟกต์ · โหมดสว่าง/มืด</span> และบันทึกคะแนนสูงสุดอัตโนมัติ</li>
+          </ul>
+          <h2>เคล็ดลับการใช้งาน</h2>
+          <ul>
+            <li>บนคอมพิวเตอร์ กดเลข <span class="k">1–4</span> เพื่อเลือกคำตอบ และ <span class="k">Enter</span> เพื่อไปข้อถัดไป</li>
+            <li>เลือก "ทุกหมวด" + ระดับผสม เพื่อทำข้อสอบรวมแบบจับฉลาก</li>
+            <li>คะแนนจะถูกบันทึกในเบราว์เซอร์นี้เท่านั้น ดูได้ที่เมนู "สถิติของฉัน"</li>
+          </ul>
+          <h2>🤖 ผู้ช่วย AI (Google Gemini)</h2>
+          <p style="margin-top:0;">กดปุ่ม <span class="k">ถาม AI</span> ใต้เฉลยแต่ละข้อ (หรือเมนู "ผู้ช่วย AI") เพื่อให้ Gemini อธิบายเพิ่มเติม ขอตัวอย่าง หรือไขข้อสงสัยของโจทย์ข้อนั้นๆ</p>
+          <ul>
+            <li><span class="k">ขอ API key ฟรี</span> ที่ <b>aistudio.google.com/apikey</b> แล้วกดไอคอน ⚙️ ในหน้าต่าง AI → เลือก "API Key" → วางคีย์ลงไป</li>
+            <li><span class="k">เลือกโมเดลได้</span> เช่น gemini-2.5-flash (ค่าเริ่มต้น), gemini-2.5-flash-lite (เร็ว/ประหยัด), gemini-3.5-flash (ฉลาดสุด)</li>
+            <li><span class="k">โหมด Proxy</span> — สำหรับเว็บสาธารณะ ตั้งเซิร์ฟเวอร์ตัวกลาง (Cloudflare Worker/Vercel) ที่เก็บคีย์ฝั่งเซิร์ฟเวอร์ แล้ว forward ไป generativelanguage.googleapis.com คีย์จะไม่รั่ว</li>
+            <li>⚠️ <b>อย่าใส่ API key ลงในไฟล์ HTML ที่ push ขึ้น GitHub</b> เพราะจะถูกเปิดเผยต่อสาธารณะ — ใส่ผ่านหน้าตั้งค่าตอนใช้งานเท่านั้น (หรือใช้ Proxy)</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="ai-modal" id="aiModal">
+  <div class="ai-back" id="aiBack"></div>
+  <div class="ai-panel">
+    <div class="ai-head">
+      <div><div class="ttl">🤖 ผู้ช่วย AI</div><div class="sub" id="aiSub">ติวเตอร์ไฟฟ้า · Gemini</div></div>
+      <div class="spacer"></div>
+      <button class="ai-icon-btn" id="aiGear" title="ตั้งค่าการเชื่อมต่อ">⚙️</button>
+      <button class="ai-icon-btn" id="aiClose" title="ปิด">✕</button>
+    </div>
+    <div class="ai-settings" id="aiSettings">
+      <div class="field"><label>โหมดการเชื่อมต่อ (Google Gemini)</label>
+        <div class="seg" id="aiModeSeg">
+          <button data-m="key" class="on">API Key</button>
+          <button data-m="proxy">Proxy</button>
+        </div>
+      </div>
+      <div class="field" id="aiKeyField"><label>Gemini API Key — ขอฟรีที่ aistudio.google.com/apikey</label>
+        <input type="password" id="aiKey" placeholder="AIza..." autocomplete="off" spellcheck="false"></div>
+      <div class="field" id="aiProxyField" style="display:none;"><label>Proxy URL (POST → ส่งต่อไป Gemini)</label>
+        <input type="text" id="aiProxy" placeholder="https://your-worker.example.com/api" autocomplete="off" spellcheck="false"></div>
+      <div class="field"><label>โมเดล — เช่น gemini-2.5-flash, gemini-2.5-flash-lite, gemini-3.5-flash</label>
+        <input type="text" id="aiModel" placeholder="gemini-2.5-flash" autocomplete="off" spellcheck="false"></div>
+      <div class="ai-warn" id="aiWarn"></div>
+    </div>
+    <div class="ai-ctx" id="aiCtx"></div>
+    <div class="ai-msgs" id="aiMsgs"></div>
+    <div class="ai-chips" id="aiChips"></div>
+    <div class="ai-input">
+      <textarea id="aiText" rows="1" placeholder="พิมพ์คำถาม เช่น อธิบายเพิ่ม หรือ ขอตัวอย่าง..."></textarea>
+      <button class="ai-send" id="aiSend">➤</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ============ VOLT QUIZ data + logic ============ */
+const categories = [
+  {id:"ohm",       icon:"⚡", name:"กฎของโอห์ม / วงจร DC",     desc:"ความสัมพันธ์ V-I-R และการคำนวณกระแส แรงดัน ความต้านทาน"},
+  {id:"power",     icon:"🔋", name:"กำลังไฟฟ้าและพลังงาน",     desc:"P=VI, I²R, การคิดค่าไฟ หน่วย kWh และพลังงาน"},
+  {id:"seriespar", icon:"🔀", name:"วงจรอนุกรม–ขนาน",          desc:"การรวมความต้านทาน วงจรแบ่งแรงดันและแบ่งกระแส"},
+  {id:"resistor",  icon:"🎚️", name:"ความต้านทาน / รหัสสี",     desc:"ตัวนำ-ฉนวน รหัสแถบสี และปัจจัยที่มีผลต่อความต้านทาน"},
+  {id:"capacitor", icon:"🪫", name:"ตัวเก็บประจุ (Capacitor)",  desc:"Q=CV, การต่อรวม พลังงาน และรีแอกแตนซ์เชิงความจุ"},
+  {id:"inductor",  icon:"🌀", name:"ตัวเหนี่ยวนำ (Inductor)",   desc:"สนามแม่เหล็ก back-EMF และรีแอกแตนซ์เชิงเหนี่ยวนำ"},
+  {id:"ac",        icon:"〰️", name:"ไฟฟ้ากระแสสลับ (AC)",      desc:"ความถี่ คาบ ค่า RMS-peak อิมพีแดนซ์ และตัวประกอบกำลัง"},
+  {id:"magnet",    icon:"🧲", name:"แม่เหล็กไฟฟ้า",             desc:"การเหนี่ยวนำ กฎฟาราเดย์-เลนซ์ มอเตอร์ และหม้อแปลง"},
+  {id:"kirchhoff", icon:"🔗", name:"กฎของเคอร์ชอฟฟ์",           desc:"KCL และ KVL สำหรับวิเคราะห์กระแสและแรงดันในวงจร"},
+  {id:"safety",    icon:"🛡️", name:"ความปลอดภัยทางไฟฟ้า",      desc:"สายดิน ฟิวส์ เบรกเกอร์ RCD และอันตรายจากไฟฟ้า"}
+];
+
+const questions = [
+{cat:"ohm",level:1,q:"กฎของโอห์ม (Ohm's Law) อธิบายความสัมพันธ์ระหว่างปริมาณใด",
+ options:["แรงดัน กระแส และความถี่","แรงดัน กระแส และความต้านทาน","กำลังไฟฟ้า ความถี่ และเวลา","ความต้านทาน ความเหนี่ยวนำ และความถี่"],correct:1,
+ formula:"V = I × R",steps:"กฎของโอห์มเชื่อมโยงแรงดัน (V), กระแส (I) และความต้านทาน (R) เข้าด้วยกันในวงจรเดียว",tip:"ตั้งชื่อตาม Georg Simon Ohm นักฟิสิกส์ชาวเยอรมัน เป็นกฎพื้นฐานที่สุดของวงจรไฟฟ้า"},
+{cat:"ohm",level:1,q:"สูตรกฎของโอห์มที่ถูกต้องคือข้อใด",
+ options:["V = I ÷ R","V = I + R","V = I × R","V = R ÷ I"],correct:2,
+ formula:"V = I × R",steps:"แรงดันเท่ากับกระแสคูณความต้านทาน",tip:"จากสูตรนี้แตกได้เป็น I = V÷R และ R = V÷I (จำเป็นรูปสามเหลี่ยม VIR)"},
+{cat:"ohm",level:2,q:"วงจรมีแรงดัน 12 โวลต์ และความต้านทาน 4 โอห์ม กระแสที่ไหลในวงจรมีค่าเท่าใด",
+ options:["2 A","3 A","4 A","48 A"],correct:1,
+ formula:"I = V ÷ R",steps:"I = 12 ÷ 4 = 3 แอมแปร์",tip:"กระแสแปรผันตรงกับแรงดัน และแปรผกผันกับความต้านทาน"},
+{cat:"ohm",level:2,q:"กระแส 5 แอมแปร์ ไหลผ่านตัวต้านทาน 10 โอห์ม แรงดันตกคร่อมมีค่าเท่าใด",
+ options:["2 V","15 V","50 V","0.5 V"],correct:2,
+ formula:"V = I × R",steps:"V = 5 × 10 = 50 โวลต์",tip:"แรงดันตกคร่อม (voltage drop) คือแรงดันที่หายไปเมื่อกระแสไหลผ่านความต้านทาน"},
+{cat:"ohm",level:3,q:"แรงดันคร่อมตัวต้านทาน 24 โวลต์ กระแสไหล 6 แอมแปร์ ความต้านทานมีค่าเท่าใด",
+ options:["2 Ω","4 Ω","6 Ω","144 Ω"],correct:1,
+ formula:"R = V ÷ I",steps:"R = 24 ÷ 6 = 4 โอห์ม",tip:"ใช้สูตรนี้หาค่าความต้านทานเมื่อทราบแรงดันและกระแส"},
+{cat:"ohm",level:3,q:"หน่วยของความต้านทานไฟฟ้าคือข้อใด",
+ options:["แอมแปร์ (A)","โวลต์ (V)","โอห์ม (Ω)","วัตต์ (W)"],correct:2,
+ formula:"",steps:"หน่วยความต้านทานคือ โอห์ม ใช้สัญลักษณ์ Ω (โอเมกา)",tip:"1 kΩ = 1,000 Ω และ 1 MΩ = 1,000,000 Ω"},
+{cat:"ohm",level:4,q:"หากเพิ่มความต้านทานในวงจรโดยแรงดันคงที่ กระแสจะเปลี่ยนแปลงอย่างไร",
+ options:["กระแสเพิ่มขึ้น","กระแสลดลง","กระแสคงที่","กระแสเป็นศูนย์"],correct:1,
+ formula:"I = V ÷ R",steps:"V คงที่ เมื่อ R เพิ่ม ค่า I = V÷R จึงลดลง",tip:"นี่คือหลักการของตัวต้านทานปรับค่า (rheostat) ที่ใช้หรี่ไฟ"},
+{cat:"ohm",level:5,q:"แหล่งจ่ายไฟ 230 โวลต์ ต่อกับความต้านทาน 46 โอห์ม กระแสในวงจรมีค่าเท่าใด",
+ options:["2 A","5 A","10 A","0.2 A"],correct:1,
+ formula:"I = V ÷ R",steps:"I = 230 ÷ 46 = 5 แอมแปร์",tip:"ไฟบ้านในไทยใช้แรงดันประมาณ 220–230 โวลต์"},
+{cat:"ohm",level:5,q:"ต้องการให้กระแสไหล 0.5 แอมแปร์ จากแหล่งจ่าย 5 โวลต์ ต้องใช้ตัวต้านทานค่าเท่าใด",
+ options:["2.5 Ω","10 Ω","0.1 Ω","5.5 Ω"],correct:1,
+ formula:"R = V ÷ I",steps:"R = 5 ÷ 0.5 = 10 โอห์ม",tip:"การเลือกตัวต้านทานจำกัดกระแสคือพื้นฐาน เช่น การต่ออนุกรมกับ LED"},
+{cat:"ohm",level:6,q:"แบตเตอรี่ 9 โวลต์ ต่อกับตัวต้านทาน 3 โอห์ม กระแสในวงจรมีค่าเท่าใด",
+ options:["1 A","3 A","27 A","0.33 A"],correct:1,
+ formula:"I = V ÷ R",steps:"I = 9 ÷ 3 = 3 แอมแปร์",tip:"แบตเตอรี่ 9V มักใช้ในเครื่องวัดและของเล่นอิเล็กทรอนิกส์"},
+
+{cat:"power",level:1,q:"หน่วยของกำลังไฟฟ้า (Power) คือข้อใด",
+ options:["โวลต์ (V)","แอมแปร์ (A)","วัตต์ (W)","โอห์ม (Ω)"],correct:2,
+ formula:"P = V × I",steps:"กำลังไฟฟ้ามีหน่วยเป็นวัตต์",tip:"1 วัตต์ = 1 จูล/วินาที คือพลังงานที่ใช้ต่อหน่วยเวลา"},
+{cat:"power",level:2,q:"แรงดัน 10 โวลต์ กระแส 2 แอมแปร์ กำลังไฟฟ้าที่ใช้มีค่าเท่าใด",
+ options:["5 W","12 W","20 W","0.2 W"],correct:2,
+ formula:"P = V × I",steps:"P = 10 × 2 = 20 วัตต์",tip:"ยิ่งแรงดันหรือกระแสมาก กำลังไฟฟ้ายิ่งสูง"},
+{cat:"power",level:3,q:"สูตรกำลังไฟฟ้าในรูปของกระแสและความต้านทานคือข้อใด",
+ options:["P = I × R","P = I² × R","P = I ÷ R²","P = R ÷ I"],correct:1,
+ formula:"P = I² × R",steps:"แทน V = IR ลงใน P = VI จะได้ P = I²R",tip:"สูตรนี้ใช้คำนวณกำลังสูญเสีย (power loss) เป็นความร้อนในสายไฟ"},
+{cat:"power",level:4,q:"กระแส 3 แอมแปร์ ไหลผ่านตัวต้านทาน 4 โอห์ม กำลังที่สูญเสียมีค่าเท่าใด",
+ options:["12 W","24 W","36 W","7 W"],correct:2,
+ formula:"P = I² × R",steps:"P = 3² × 4 = 9 × 4 = 36 วัตต์",tip:"กำลังสูญเสียเพิ่มตามกำลังสองของกระแส กระแสมากความร้อนยิ่งสูง"},
+{cat:"power",level:4,q:"แรงดัน 12 โวลต์ คร่อมตัวต้านทาน 6 โอห์ม กำลังไฟฟ้ามีค่าเท่าใด",
+ options:["2 W","24 W","144 W","72 W"],correct:1,
+ formula:"P = V² ÷ R",steps:"P = 12² ÷ 6 = 144 ÷ 6 = 24 วัตต์",tip:"ใช้สูตรนี้เมื่อทราบแรงดันและความต้านทานแต่ไม่ทราบกระแส"},
+{cat:"power",level:5,q:"หลอดไฟ 100 วัตต์ เปิดนาน 2 ชั่วโมง ใช้พลังงานกี่กิโลวัตต์-ชั่วโมง (kWh)",
+ options:["0.2 kWh","2 kWh","200 kWh","50 kWh"],correct:0,
+ formula:"E = P × t",steps:"E = 100 W × 2 h = 200 Wh = 0.2 kWh",tip:"มิเตอร์ไฟบ้านคิดค่าไฟเป็นหน่วย kWh (ยูนิต)"},
+{cat:"power",level:6,q:"เครื่องใช้ไฟฟ้า 1,500 วัตต์ ใช้งาน 4 ชั่วโมง ค่าไฟหน่วยละ 4 บาท ต้องจ่ายกี่บาท",
+ options:["6 บาท","24 บาท","60 บาท","96 บาท"],correct:1,
+ formula:"ค่าไฟ = (P ÷ 1000) × t × ราคา/หน่วย",steps:"พลังงาน = 1.5 kW × 4 h = 6 kWh → ค่าไฟ = 6 × 4 = 24 บาท",tip:"ต้องเปลี่ยนวัตต์เป็นกิโลวัตต์ก่อนเสมอ (หารด้วย 1,000)"},
+{cat:"power",level:7,q:"หลอดไฟ 60 วัตต์ ใช้กับไฟบ้าน 220 โวลต์ กระแสที่ไหลผ่านมีค่าประมาณเท่าใด",
+ options:["0.27 A","3.7 A","13,200 A","2.2 A"],correct:0,
+ formula:"I = P ÷ V",steps:"I = 60 ÷ 220 ≈ 0.27 แอมแปร์",tip:"อุปกรณ์กำลังสูงดึงกระแสมาก ต้องเลือกขนาดสายไฟและเบรกเกอร์ให้เหมาะ"},
+{cat:"power",level:8,q:"เตารีด A กิน 1,000 วัตต์ และ B กิน 2,000 วัตต์ ข้อใดถูกต้อง",
+ options:["A ให้ความร้อนมากกว่า B","B ให้ความร้อนมากกว่า A","ให้ความร้อนเท่ากัน","เปรียบเทียบไม่ได้"],correct:1,
+ formula:"P = พลังงานความร้อนต่อวินาที",steps:"กำลังวัตต์ยิ่งสูง ยิ่งเปลี่ยนพลังงานไฟฟ้าเป็นความร้อนได้มากต่อวินาที B = 2,000 W จึงร้อนกว่า",tip:"แต่ B กินไฟมากกว่าด้วย ค่าไฟต่อชั่วโมงจึงสูงกว่า"},
+
+{cat:"seriespar",level:1,q:"ในวงจรอนุกรม (Series) ปริมาณใดมีค่าเท่ากันทุกจุดในวงจร",
+ options:["แรงดันไฟฟ้า","กระแสไฟฟ้า","ความต้านทาน","กำลังไฟฟ้า"],correct:1,
+ formula:"I₁ = I₂ = I₃ = ... (อนุกรม)",steps:"วงจรอนุกรมมีทางเดินกระแสทางเดียว กระแสจึงเท่ากันทุกจุด",tip:"ถ้าอุปกรณ์ตัวใดขาด วงจรอนุกรมจะดับทั้งหมด เช่น ไฟประดับแบบเก่า"},
+{cat:"seriespar",level:1,q:"ในวงจรขนาน (Parallel) ปริมาณใดมีค่าเท่ากันในทุกสาขา",
+ options:["กระแสไฟฟ้า","ความต้านทานรวม","แรงดันไฟฟ้า","กำลังไฟฟ้า"],correct:2,
+ formula:"V₁ = V₂ = V₃ = ... (ขนาน)",steps:"ทุกสาขาต่อระหว่างจุดสองจุดเดียวกัน แรงดันจึงเท่ากัน",tip:"ไฟในบ้านต่อแบบขนาน เปิด-ปิดอุปกรณ์ตัวหนึ่งจึงไม่กระทบตัวอื่น"},
+{cat:"seriespar",level:2,q:"ตัวต้านทาน 3 โอห์ม และ 7 โอห์ม ต่ออนุกรมกัน ความต้านทานรวมเท่าใด",
+ options:["4 Ω","10 Ω","21 Ω","2.1 Ω"],correct:1,
+ formula:"R_รวม = R₁ + R₂ + ... (อนุกรม)",steps:"R_รวม = 3 + 7 = 10 โอห์ม",tip:"ต่ออนุกรมยิ่งมากตัว ความต้านทานรวมยิ่งสูงขึ้น"},
+{cat:"seriespar",level:3,q:"ตัวต้านทาน 6 โอห์ม สองตัวต่อขนานกัน ความต้านทานรวมเท่าใด",
+ options:["12 Ω","6 Ω","3 Ω","0.33 Ω"],correct:2,
+ formula:"R_รวม = R ÷ n (ค่าเท่ากัน n ตัวขนาน)",steps:"ค่าเท่ากัน 2 ตัวขนาน → R÷2 = 6÷2 = 3 โอห์ม",tip:"ต่อขนาน ความต้านทานรวมจะน้อยกว่าตัวที่เล็กที่สุดเสมอ"},
+{cat:"seriespar",level:3,q:"สูตรหาความต้านทานรวมของตัวต้านทาน 2 ตัวต่อขนานคือข้อใด",
+ options:["R_รวม = R₁ + R₂","R_รวม = R₁ × R₂","1/R_รวม = 1/R₁ + 1/R₂","R_รวม = R₁ − R₂"],correct:2,
+ formula:"1/R_รวม = 1/R₁ + 1/R₂",steps:"ส่วนกลับของความต้านทานรวมเท่ากับผลรวมของส่วนกลับแต่ละตัว",tip:"สำหรับ 2 ตัว ใช้สูตรลัด R = (R₁×R₂)÷(R₁+R₂) จะคิดเร็วกว่า"},
+{cat:"seriespar",level:4,q:"ตัวต้านทาน 4 โอห์ม และ 12 โอห์ม ต่อขนานกัน ความต้านทานรวมเท่าใด",
+ options:["16 Ω","3 Ω","48 Ω","8 Ω"],correct:1,
+ formula:"R = (R₁ × R₂) ÷ (R₁ + R₂)",steps:"R = (4 × 12) ÷ (4 + 12) = 48 ÷ 16 = 3 โอห์ม",tip:"สูตรผลคูณหารผลบวกใช้ได้กับตัวต้านทาน 2 ตัวเท่านั้น"},
+{cat:"seriespar",level:5,q:"ตัวต้านทาน 2 Ω และ 4 Ω ต่ออนุกรมกับแหล่งจ่าย 12 โวลต์ แรงดันตกคร่อมตัว 4 Ω เท่าใด",
+ options:["4 V","6 V","8 V","12 V"],correct:2,
+ formula:"หา I ก่อน แล้ว V = I × R",steps:"R_รวม = 6 Ω, I = 12÷6 = 2 A, V_4Ω = 2 × 4 = 8 โวลต์",tip:"นี่คือหลักการ วงจรแบ่งแรงดัน (voltage divider) แรงดันแบ่งตามสัดส่วนความต้านทาน"},
+{cat:"seriespar",level:6,q:"กระแสรวม 4 A ไหลเข้าตัวต้านทาน 6 Ω สองตัวที่ต่อขนานกัน กระแสในแต่ละสาขาเท่าใด",
+ options:["1 A","2 A","4 A","8 A"],correct:1,
+ formula:"สาขาค่าเท่ากัน → กระแสแบ่งเท่ากัน",steps:"ค่าเท่ากัน 2 สาขา → 4 ÷ 2 = 2 แอมแปร์ต่อสาขา",tip:"วงจรขนานคือ วงจรแบ่งกระแส สาขาที่ความต้านทานน้อยจะได้กระแสมากกว่า"},
+{cat:"seriespar",level:7,q:"ตัวต้านทาน 4 Ω ต่ออนุกรมกับชุดขนานของ 4 Ω สองตัว ความต้านทานรวมทั้งหมดเท่าใด",
+ options:["4 Ω","6 Ω","8 Ω","12 Ω"],correct:1,
+ formula:"แก้ส่วนขนานก่อน แล้วบวกอนุกรม",steps:"ขนาน 4∥4 = 2 Ω → อนุกรม 4 + 2 = 6 โอห์ม",tip:"วงจรผสมให้แก้ส่วนขนานก่อนเสมอ แล้วค่อยรวมแบบอนุกรม"},
+
+{cat:"resistor",level:1,q:"วัสดุชนิดใดนำไฟฟ้าได้ดี (ความต้านทานต่ำ)",
+ options:["ยาง","ทองแดง","แก้ว","พลาสติก"],correct:1,
+ formula:"",steps:"ทองแดงเป็นโลหะที่มีอิเล็กตรอนอิสระมาก จึงนำไฟฟ้าได้ดี",tip:"เงินนำไฟฟ้าดีที่สุด แต่ทองแดงราคาถูกกว่าจึงนิยมใช้ทำสายไฟ"},
+{cat:"resistor",level:1,q:"ข้อใดเป็นฉนวนไฟฟ้า (ไม่นำไฟฟ้า)",
+ options:["อะลูมิเนียม","เหล็ก","ยาง","ทองแดง"],correct:2,
+ formula:"",steps:"ยางมีความต้านทานสูงมาก กระแสไหลผ่านแทบไม่ได้",tip:"ฉนวนใช้หุ้มสายไฟเพื่อป้องกันไฟดูดและไฟฟ้าลัดวงจร"},
+{cat:"resistor",level:2,q:"รหัสสีบนตัวต้านทานแบบ 4 แถบ แถบที่ 1 และ 2 บอกค่าอะไร",
+ options:["ตัวคูณ","ค่าความคลาดเคลื่อน","ตัวเลขหลักสำคัญ","กำลังวัตต์"],correct:2,
+ formula:"",steps:"แถบ 1-2 คือตัวเลขสองหลักแรก, แถบ 3 คือตัวคูณ, แถบ 4 คือค่าคลาดเคลื่อน",tip:"ท่องสี: ดำ0 น้ำตาล1 แดง2 ส้ม3 เหลือง4 เขียว5 น้ำเงิน6 ม่วง7 เทา8 ขาว9"},
+{cat:"resistor",level:3,q:"ตัวต้านทานแถบสี น้ำตาล-ดำ-แดง มีค่าความต้านทานเท่าใด",
+ options:["100 Ω","1 kΩ","10 kΩ","12 Ω"],correct:1,
+ formula:"ค่า = (หลัก1 หลัก2) × ตัวคูณ",steps:"น้ำตาล=1, ดำ=0, แดง=×100 → 10 × 100 = 1,000 Ω = 1 kΩ",tip:"แดงในตำแหน่งตัวคูณหมายถึง ×10² (คูณ 100)"},
+{cat:"resistor",level:4,q:"ตัวต้านทานแถบสี แดง-แดง-ส้ม มีค่าเท่าใด",
+ options:["223 Ω","2.2 kΩ","22 kΩ","220 kΩ"],correct:2,
+ formula:"ค่า = (หลัก1 หลัก2) × ตัวคูณ",steps:"แดง=2, แดง=2, ส้ม=×1,000 → 22 × 1,000 = 22,000 Ω = 22 kΩ",tip:"ส้มในตำแหน่งตัวคูณคือ ×10³"},
+{cat:"resistor",level:4,q:"แถบสีทอง (Gold) ในตำแหน่งค่าคลาดเคลื่อนหมายถึงเท่าใด",
+ options:["±1%","±5%","±10%","±20%"],correct:1,
+ formula:"",steps:"ทอง = ±5%, เงิน = ±10%",tip:"ค่าคลาดเคลื่อนบอกว่าค่าจริงเบี่ยงเบนจากค่าที่ระบุได้กี่เปอร์เซ็นต์"},
+{cat:"resistor",level:5,q:"ใช้ลวดตัวนำชนิดเดียวกันแต่ยาวขึ้นเป็น 2 เท่า ความต้านทานจะเป็นอย่างไร",
+ options:["ลดลงครึ่งหนึ่ง","เพิ่มเป็น 2 เท่า","เท่าเดิม","เพิ่มเป็น 4 เท่า"],correct:1,
+ formula:"R = ρ × (L ÷ A)",steps:"ความต้านทานแปรผันตรงกับความยาว (L) เมื่อ L เพิ่ม 2 เท่า R จึงเพิ่ม 2 เท่า",tip:"ลวดยิ่งยาวต้านทานยิ่งมาก ลวดยิ่งหนา (A มาก) ต้านทานยิ่งน้อย"},
+{cat:"resistor",level:5,q:"โดยทั่วไปเมื่ออุณหภูมิของลวดโลหะสูงขึ้น ความต้านทานจะเป็นอย่างไร",
+ options:["เพิ่มขึ้น","ลดลง","คงที่","เป็นศูนย์"],correct:0,
+ formula:"",steps:"ในโลหะ อุณหภูมิสูงทำให้อะตอมสั่นมากขึ้น ขัดขวางการไหลของอิเล็กตรอน R จึงเพิ่ม",tip:"ตรงข้ามกับสารกึ่งตัวนำ (semiconductor) ที่ความต้านทานลดลงเมื่อร้อนขึ้น"},
+{cat:"capacitor",level:2,q:"หน่วยของค่าความจุ (Capacitance) ของตัวเก็บประจุคือข้อใด",
+ options:["เฮนรี (H)","ฟารัด (F)","โอห์ม (Ω)","เฮิรตซ์ (Hz)"],correct:1,
+ formula:"",steps:"ความจุมีหน่วยเป็นฟารัด (Farad) ใช้สัญลักษณ์ F",tip:"ฟารัดเป็นหน่วยใหญ่มาก ในงานจริงมักใช้ µF, nF, pF"},
+{cat:"capacitor",level:2,q:"ตัวเก็บประจุ (Capacitor) ทำหน้าที่หลักอะไรในวงจร",
+ options:["เก็บประจุ/พลังงานในสนามไฟฟ้า","สร้างสนามแม่เหล็ก","เปลี่ยนไฟ AC เป็น DC","ขยายสัญญาณ"],correct:0,
+ formula:"",steps:"ตัวเก็บประจุเก็บประจุไฟฟ้าไว้ในรูปสนามไฟฟ้าระหว่างแผ่นตัวนำ",tip:"ใช้กรองไฟ (filter), เก็บพลังงานสำรอง และจ่ายกระแสชั่วขณะ"},
+{cat:"capacitor",level:3,q:"ตัวเก็บประจุ 10 µF ต่อกับแรงดัน 5 โวลต์ จะเก็บประจุได้เท่าใด",
+ options:["2 µC","15 µC","50 µC","0.5 µC"],correct:2,
+ formula:"Q = C × V",steps:"Q = 10 µF × 5 V = 50 µC (ไมโครคูลอมบ์)",tip:"ประจุที่เก็บได้แปรผันตรงกับทั้งความจุและแรงดัน"},
+{cat:"capacitor",level:4,q:"ตัวเก็บประจุ 2 µF และ 3 µF ต่อขนานกัน ความจุรวมเท่าใด",
+ options:["1 µF","1.2 µF","5 µF","6 µF"],correct:2,
+ formula:"C_รวม = C₁ + C₂ (ขนาน)",steps:"C_รวม = 2 + 3 = 5 µF",tip:"ตัวเก็บประจุต่อขนานบวกกันตรงๆ (ตรงข้ามกับตัวต้านทาน)"},
+{cat:"capacitor",level:5,q:"ตัวเก็บประจุ 4 µF สองตัวต่ออนุกรมกัน ความจุรวมเท่าใด",
+ options:["8 µF","4 µF","2 µF","1 µF"],correct:2,
+ formula:"1/C_รวม = 1/C₁ + 1/C₂ (อนุกรม)",steps:"ค่าเท่ากัน 2 ตัวอนุกรม → C÷2 = 4÷2 = 2 µF",tip:"ตัวเก็บประจุต่ออนุกรมคำนวณเหมือนตัวต้านทานต่อขนาน (สลับกัน)"},
+{cat:"capacitor",level:5,q:"สูตรพลังงานที่สะสมในตัวเก็บประจุคือข้อใด",
+ options:["E = C × V","E = ½ × C × V²","E = C ÷ V","E = V² ÷ C"],correct:1,
+ formula:"E = ½ × C × V²",steps:"พลังงานแปรผันตามกำลังสองของแรงดัน",tip:"ตัวเก็บประจุแรงดันสูงเก็บพลังงานได้มากและอันตราย แม้ถอดไฟแล้วก็อาจยังมีประจุค้าง"},
+{cat:"capacitor",level:6,q:"ตัวเก็บประจุมีพฤติกรรมต่อไฟ DC และ AC อย่างไร",
+ options:["ผ่าน DC กั้น AC","กั้น DC ยอมให้ AC ผ่าน","กั้นทั้งสอง","ผ่านทั้งสองเท่ากัน"],correct:1,
+ formula:"",steps:"เมื่อประจุเต็มแล้ว DC จะไหลไม่ได้ (กั้น) แต่ AC ที่สลับทิศทำให้เกิดการประจุ-คายต่อเนื่องเสมือนกระแสไหลผ่าน",tip:"คุณสมบัตินี้ใช้ทำตัวกรองสัญญาณ (coupling/decoupling)"},
+{cat:"capacitor",level:7,q:"ความต้านทานเชิงความจุ (Capacitive Reactance, Xc) คำนวณจากสูตรใด",
+ options:["Xc = 2πfC","Xc = 1 ÷ (2πfC)","Xc = 2πfL","Xc = R × C"],correct:1,
+ formula:"Xc = 1 ÷ (2πfC)",steps:"Xc แปรผกผันกับความถี่และความจุ",tip:"ความถี่ยิ่งสูง Xc ยิ่งต่ำ ตัวเก็บประจุจึงยอมให้สัญญาณความถี่สูงผ่านได้ง่าย"},
+
+{cat:"inductor",level:3,q:"หน่วยของค่าความเหนี่ยวนำ (Inductance) คือข้อใด",
+ options:["ฟารัด (F)","เฮนรี (H)","โอห์ม (Ω)","วัตต์ (W)"],correct:1,
+ formula:"",steps:"ความเหนี่ยวนำมีหน่วยเป็นเฮนรี (Henry) ใช้สัญลักษณ์ H",tip:"ตั้งชื่อตาม Joseph Henry นักวิทยาศาสตร์ชาวอเมริกัน"},
+{cat:"inductor",level:3,q:"ตัวเหนี่ยวนำ (Inductor) เก็บพลังงานไว้ในรูปแบบใด",
+ options:["สนามไฟฟ้า","สนามแม่เหล็ก","ความร้อน","แสง"],correct:1,
+ formula:"",steps:"เมื่อกระแสไหลผ่านขดลวด จะเกิดสนามแม่เหล็กเก็บพลังงานไว้",tip:"ตัวเหนี่ยวนำคือขดลวด มักมีแกนเหล็กหรืออากาศอยู่ตรงกลาง"},
+{cat:"inductor",level:4,q:"ตัวเหนี่ยวนำต่ออนุกรมกัน ค่าความเหนี่ยวนำรวมคำนวณอย่างไร",
+ options:["บวกกัน","คูณกัน","ใช้สูตรส่วนกลับ","หารกัน"],correct:0,
+ formula:"L_รวม = L₁ + L₂ + ... (อนุกรม)",steps:"ตัวเหนี่ยวนำต่ออนุกรมบวกกันตรงๆ เหมือนตัวต้านทาน",tip:"ต่อขนานจึงใช้สูตรส่วนกลับ ตรงข้ามกับพฤติกรรมของตัวเก็บประจุ"},
+{cat:"inductor",level:5,q:"ตัวเหนี่ยวนำมีคุณสมบัติเด่นอย่างไรต่อกระแสในวงจร",
+ options:["ต้านการเปลี่ยนแปลงของกระแส","ต้านการเปลี่ยนแปลงของแรงดัน","เพิ่มกระแสทันที","ไม่มีผลต่อกระแส"],correct:0,
+ formula:"V = L × (ΔI ÷ Δt)",steps:"เมื่อกระแสเปลี่ยน ตัวเหนี่ยวนำสร้างแรงดันต้าน (back-EMF) เพื่อต้านการเปลี่ยนแปลงนั้น",tip:"ทำให้กระแสในวงจรเหนี่ยวนำเปลี่ยนแบบค่อยเป็นค่อยไป ไม่กระโดดทันที"},
+{cat:"inductor",level:6,q:"ความต้านทานเชิงเหนี่ยวนำ (Inductive Reactance, XL) คำนวณจากสูตรใด",
+ options:["XL = 1 ÷ (2πfL)","XL = 2πfL","XL = 2πfC","XL = R ÷ L"],correct:1,
+ formula:"XL = 2πfL",steps:"XL แปรผันตรงกับความถี่และค่าความเหนี่ยวนำ",tip:"ความถี่ยิ่งสูง XL ยิ่งมาก ตัวเหนี่ยวนำจึงกั้นสัญญาณความถี่สูง (ตรงข้ามตัวเก็บประจุ)"},
+{cat:"inductor",level:6,q:"ในวงจร DC ที่กระแสคงที่แล้ว (steady state) ตัวเหนี่ยวนำเหมือนสิ่งใด",
+ options:["ตัวต้านทานค่าสูง","สายไฟธรรมดา (ลัดวงจร)","วงจรเปิด","ตัวเก็บประจุ"],correct:1,
+ formula:"XL = 2πfL, DC มี f = 0",steps:"ไฟ DC มีความถี่ = 0 ทำให้ XL = 0 ตัวเหนี่ยวนำจึงเหมือนลวดตัวนำธรรมดา",tip:"ตรงข้ามกับตัวเก็บประจุที่กั้น DC สนิท"},
+{cat:"inductor",level:7,q:"พลังงานที่สะสมในตัวเหนี่ยวนำคำนวณจากสูตรใด",
+ options:["E = ½ × L × I²","E = L × I","E = ½ × C × V²","E = I² × L × t"],correct:0,
+ formula:"E = ½ × L × I²",steps:"พลังงานแปรผันตามกำลังสองของกระแส",tip:"เมื่อตัดวงจรเหนี่ยวนำกะทันหัน พลังงานนี้อาจทำให้เกิดประกายไฟ (arc) ที่สวิตช์"},
+
+{cat:"ac",level:2,q:"ไฟฟ้ากระแสสลับ (AC) แตกต่างจากกระแสตรง (DC) อย่างไร",
+ options:["ไหลทิศทางเดียวตลอด","สลับทิศทางการไหลเป็นคาบ","ไม่มีการไหลของกระแส","มีแรงดันเป็นศูนย์เสมอ"],correct:1,
+ formula:"",steps:"AC คือกระแสที่สลับทิศไป-กลับเป็นคาบ ส่วน DC ไหลทิศทางเดียว",tip:"ไฟบ้านเป็น AC ส่วนแบตเตอรี่เป็น DC"},
+{cat:"ac",level:3,q:"ความถี่ของไฟฟ้าในระบบจำหน่ายของประเทศไทยมีค่าเท่าใด",
+ options:["50 Hz","60 Hz","100 Hz","220 Hz"],correct:0,
+ formula:"",steps:"ประเทศไทยใช้ไฟ AC ความถี่ 50 เฮิรตซ์ แรงดันประมาณ 220 โวลต์",tip:"อเมริกาและบางประเทศใช้ 60 Hz / 110-120 V ต้องระวังเวลานำเครื่องใช้ไฟฟ้าข้ามประเทศ"},
+{cat:"ac",level:4,q:"ไฟ AC มีแรงดันยอด (peak) 311 โวลต์ ค่าแรงดันใช้งานจริง (RMS) ประมาณเท่าใด",
+ options:["311 V","440 V","220 V","156 V"],correct:2,
+ formula:"V_rms = V_peak ÷ √2",steps:"V_rms = 311 ÷ 1.414 ≈ 220 โวลต์",tip:"ค่าที่ระบุว่า 220V คือค่า RMS ไม่ใช่ค่ายอด เครื่องวัดทั่วไปอ่านค่า RMS"},
+{cat:"ac",level:4,q:"ถ้าไฟบ้านมีแรงดัน RMS = 220 โวลต์ แรงดันยอด (peak) มีค่าประมาณเท่าใด",
+ options:["156 V","220 V","311 V","440 V"],correct:2,
+ formula:"V_peak = V_rms × √2",steps:"V_peak = 220 × 1.414 ≈ 311 โวลต์",tip:"ฉนวนและอุปกรณ์ต้องทนแรงดันยอดได้ ไม่ใช่แค่ค่า RMS"},
+{cat:"ac",level:5,q:"ไฟ AC ความถี่ 50 Hz มีคาบเวลา (Period) เท่าใด",
+ options:["0.02 วินาที","0.05 วินาที","2 วินาที","50 วินาที"],correct:0,
+ formula:"T = 1 ÷ f",steps:"T = 1 ÷ 50 = 0.02 วินาที (20 มิลลิวินาที)",tip:"คาบคือเวลาที่คลื่นครบ 1 รอบ ความถี่ 50 Hz = 50 รอบต่อวินาที"},
+{cat:"ac",level:5,q:"เหตุใดระบบส่งจ่ายไฟฟ้าจึงนิยมใช้ไฟ AC มากกว่า DC",
+ options:["AC เก็บในแบตได้ง่าย","AC แปลงแรงดันขึ้น-ลงด้วยหม้อแปลงได้ง่าย","AC ไม่มีอันตราย","AC ไหลเร็วกว่า"],correct:1,
+ formula:"",steps:"AC ใช้หม้อแปลงเพิ่ม-ลดแรงดันได้ง่าย ทำให้ส่งไฟแรงดันสูงระยะไกลโดยสูญเสียน้อย",tip:"ส่งด้วยแรงดันสูงทำให้กระแสต่ำลง ลดการสูญเสีย I²R ในสายส่ง"},
+{cat:"ac",level:6,q:"ในวงจร AC ที่มีทั้งตัวต้านทานและรีแอกแตนซ์ ค่าอิมพีแดนซ์ (Z) คำนวณอย่างไร",
+ options:["Z = R + X","Z = √(R² + X²)","Z = R × X","Z = R − X"],correct:1,
+ formula:"Z = √(R² + X²)",steps:"อิมพีแดนซ์คือผลรวมเชิงเวกเตอร์ของความต้านทาน (R) และรีแอกแตนซ์ (X)",tip:"Z คือความต้านทานรวมในวงจร AC มีหน่วยเป็นโอห์มเช่นกัน"},
+{cat:"ac",level:7,q:"ตัวประกอบกำลัง (Power Factor) ในวงจร AC หมายถึงอะไร",
+ options:["อัตราส่วนกำลังจริงต่อกำลังปรากฏ","ความถี่ของไฟ","แรงดันยอด","จำนวนเฟส"],correct:0,
+ formula:"PF = กำลังจริง (W) ÷ กำลังปรากฏ (VA)",steps:"ค่า PF อยู่ระหว่าง 0 ถึง 1 ยิ่งใกล้ 1 ยิ่งใช้พลังงานมีประสิทธิภาพ",tip:"โหลดที่มีตัวเหนี่ยวนำมาก เช่น มอเตอร์ ทำให้ PF ต่ำ โรงงานจึงติดคาปาซิเตอร์แก้ค่า PF"},
+
+{cat:"magnet",level:2,q:"เมื่อมีกระแสไฟฟ้าไหลผ่านลวดตัวนำ จะเกิดสิ่งใดรอบลวด",
+ options:["สนามไฟฟ้าเท่านั้น","สนามแม่เหล็ก","คลื่นเสียง","ความเย็น"],correct:1,
+ formula:"",steps:"กระแสไฟฟ้าสร้างสนามแม่เหล็กรอบตัวนำเสมอ (การค้นพบของเออร์สเตด)",tip:"นี่คือพื้นฐานของแม่เหล็กไฟฟ้า มอเตอร์ และหม้อแปลง"},
+{cat:"magnet",level:3,q:"แม่เหล็กไฟฟ้า (Electromagnet) สร้างได้อย่างไร",
+ options:["นำแม่เหล็กถาวรมาต่อกัน","พันขดลวดรอบแกนเหล็กแล้วจ่ายกระแส","ใช้ตัวเก็บประจุ","ใช้ความร้อน"],correct:1,
+ formula:"",steps:"พันขดลวดรอบแกนเหล็กแล้วจ่ายกระแส จะเกิดสนามแม่เหล็กแรง เปิด-ปิดได้",tip:"ยิ่งจำนวนรอบมากและกระแสสูง สนามแม่เหล็กยิ่งแรง"},
+{cat:"magnet",level:4,q:"ตามกฎการเหนี่ยวนำของฟาราเดย์ แรงเคลื่อนไฟฟ้า (EMF) เกิดขึ้นเมื่อใด",
+ options:["เมื่อสนามแม่เหล็กคงที่","เมื่อเส้นแรงแม่เหล็กที่ผ่านขดลวดเปลี่ยนแปลง","เมื่อขดลวดอยู่นิ่ง","เมื่อไม่มีสนามแม่เหล็ก"],correct:1,
+ formula:"EMF = −N × (ΔΦ ÷ Δt)",steps:"การเปลี่ยนแปลงของฟลักซ์แม่เหล็ก (Φ) ที่ผ่านขดลวด เหนี่ยวนำให้เกิดแรงเคลื่อนไฟฟ้า",tip:"เป็นหลักการของเครื่องกำเนิดไฟฟ้า (generator) และหม้อแปลง"},
+{cat:"magnet",level:4,q:"อุปกรณ์ใดเปลี่ยนพลังงานกลเป็นพลังงานไฟฟ้า",
+ options:["มอเตอร์","เครื่องกำเนิดไฟฟ้า (Generator)","หม้อแปลง","ตัวเก็บประจุ"],correct:1,
+ formula:"",steps:"เครื่องกำเนิดไฟฟ้าใช้การหมุน (พลังงานกล) เหนี่ยวนำให้เกิดกระแส (พลังงานไฟฟ้า)",tip:"มอเตอร์ทำตรงข้าม คือเปลี่ยนพลังงานไฟฟ้าเป็นพลังงานกล"},
+{cat:"magnet",level:5,q:"เมื่อลวดตัวนำที่มีกระแสไหลอยู่ในสนามแม่เหล็ก จะเกิดสิ่งใด",
+ options:["ไม่มีอะไรเกิดขึ้น","เกิดแรงกระทำต่อลวด","ลวดเย็นลง","กระแสหยุดไหล"],correct:1,
+ formula:"F = B × I × L",steps:"สนามแม่เหล็กกระทำแรงต่อตัวนำที่มีกระแส ตามกฎมือซ้ายของเฟลมมิง",tip:"นี่คือหลักการทำงานของมอเตอร์ไฟฟ้า"},
+{cat:"magnet",level:5,q:"กฎของเลนซ์ (Lenz) กล่าวว่ากระแสเหนี่ยวนำจะมีทิศทางอย่างไร",
+ options:["เสริมการเปลี่ยนแปลงของฟลักซ์","ต้านการเปลี่ยนแปลงของฟลักซ์ที่ทำให้มันเกิด","ตั้งฉากกับฟลักซ์เสมอ","ไม่มีทิศทางแน่นอน"],correct:1,
+ formula:"",steps:"กระแสเหนี่ยวนำจะสร้างสนามแม่เหล็กต้านการเปลี่ยนแปลงที่ทำให้มันเกิดขึ้น",tip:"เป็นไปตามกฎอนุรักษ์พลังงาน เครื่องหมายลบในสูตรฟาราเดย์มาจากกฎนี้"},
+{cat:"magnet",level:6,q:"หม้อแปลงไฟฟ้า (Transformer) ทำงานด้วยหลักการใด",
+ options:["การเหนี่ยวนำร่วม (Mutual Induction)","การเก็บประจุ","กฎของโอห์ม","การนำความร้อน"],correct:0,
+ formula:"V_p ÷ V_s = N_p ÷ N_s",steps:"ขดปฐมภูมิสร้างสนามแม่เหล็กสลับ เหนี่ยวนำแรงดันในขดทุติยภูมิตามสัดส่วนจำนวนรอบ",tip:"หม้อแปลงใช้ได้กับไฟ AC เท่านั้น เพราะต้องมีฟลักซ์ที่เปลี่ยนแปลง"},
+
+{cat:"kirchhoff",level:4,q:"กฎกระแสของเคอร์ชอฟฟ์ (KCL) กล่าวว่าอย่างไรที่จุดต่อ (node)",
+ options:["ผลรวมกระแสเข้า = ผลรวมกระแสออก","ผลรวมแรงดัน = 0","กระแสเท่ากันทุกจุด","แรงดันเท่ากันทุกจุด"],correct:0,
+ formula:"ΣI_เข้า = ΣI_ออก",steps:"ที่จุดต่อใดๆ กระแสที่ไหลเข้าต้องเท่ากับกระแสที่ไหลออก",tip:"KCL ใช้กับจุดต่อ (node) ตั้งอยู่บนหลักการอนุรักษ์ประจุไฟฟ้า"},
+{cat:"kirchhoff",level:4,q:"กฎแรงดันของเคอร์ชอฟฟ์ (KVL) กล่าวว่าอย่างไรในวงรอบปิด (loop)",
+ options:["ผลรวมกระแส = 0","ผลรวมแรงดันรอบวงรอบปิด = 0","แรงดันเพิ่มขึ้นเรื่อยๆ","กระแสเข้า = กระแสออก"],correct:1,
+ formula:"ΣV = 0 (รอบวงปิด)",steps:"ผลรวมแรงดันที่เพิ่มและตกคร่อมรอบวงรอบปิดเท่ากับศูนย์",tip:"แรงดันที่แหล่งจ่ายให้ = ผลรวมแรงดันตกคร่อมอุปกรณ์ทั้งหมดในวงรอบ"},
+{cat:"kirchhoff",level:5,q:"ที่จุดต่อหนึ่ง มีกระแสไหลเข้า 3 A และไหลออกทางสาขาหนึ่ง 1 A กระแสที่ไหลออกอีกสาขาหนึ่งเท่าใด",
+ options:["1 A","2 A","3 A","4 A"],correct:1,
+ formula:"ΣI_เข้า = ΣI_ออก",steps:"3 A เข้า = 1 A + ? ออก → ? = 3 − 1 = 2 แอมแปร์",tip:"กระแสเข้าเท่ากับผลรวมกระแสออกทุกสาขาเสมอ"},
+{cat:"kirchhoff",level:5,q:"หากต้องการวิเคราะห์กระแสที่จุดแยกสาขาในวงจร ควรใช้กฎใด",
+ options:["KVL","KCL","กฎของโอห์มเท่านั้น","กฎของเลนซ์"],correct:1,
+ formula:"",steps:"จุดแยกสาขา (node) ใช้ KCL ส่วนวงรอบปิด (loop) ใช้ KVL",tip:"การวิเคราะห์วงจรซับซ้อนมักใช้ KCL + KVL + กฎของโอห์มร่วมกัน"},
+{cat:"kirchhoff",level:6,q:"ในวงรอบปิด แหล่งจ่าย 12 V มีแรงดันตกคร่อมตัวต้านทานตัวแรก 8 V แรงดันตกคร่อมตัวที่สองเท่าใด",
+ options:["4 V","8 V","12 V","20 V"],correct:0,
+ formula:"ΣV = 0 → V_แหล่งจ่าย = ผลรวมแรงดันตก",steps:"12 = 8 + ? → ? = 12 − 8 = 4 โวลต์",tip:"แรงดันแหล่งจ่ายถูกแบ่งให้อุปกรณ์ในวงรอบจนครบ"},
+{cat:"kirchhoff",level:7,q:"กฎแรงดันของเคอร์ชอฟฟ์ (KVL) ตั้งอยู่บนหลักการอนุรักษ์สิ่งใด",
+ options:["ประจุไฟฟ้า","พลังงาน","มวล","โมเมนตัม"],correct:1,
+ formula:"",steps:"KVL มาจากการอนุรักษ์พลังงาน (พลังงานต่อประจุรอบวงรอบปิดเป็นศูนย์)",tip:"ส่วน KCL มาจากการอนุรักษ์ประจุไฟฟ้า"},
+
+{cat:"safety",level:1,q:"สายดิน (Ground/Earth) ในระบบไฟฟ้ามีหน้าที่หลักอะไร",
+ options:["ทำให้ไฟสว่างขึ้น","นำกระแสรั่วลงดินเพื่อความปลอดภัย","เพิ่มแรงดันไฟ","ประหยัดค่าไฟ"],correct:1,
+ formula:"",steps:"สายดินนำกระแสรั่วไหลลงดิน ป้องกันไฟดูดเมื่อเครื่องใช้ไฟฟ้ามีไฟรั่วที่ตัวถัง",tip:"สายดินตามมาตรฐานมักเป็นสีเขียวแถบเหลือง"},
+{cat:"safety",level:2,q:"ฟิวส์ (Fuse) หรือเซอร์กิตเบรกเกอร์ (Breaker) ทำหน้าที่อะไร",
+ options:["ตัดวงจรเมื่อกระแสเกินกำหนด","เพิ่มแรงดันไฟ","เก็บประจุ","วัดกระแส"],correct:0,
+ formula:"",steps:"ตัดวงจรอัตโนมัติเมื่อกระแสเกิน (overcurrent) หรือลัดวงจร ป้องกันสายไฟร้อนและไฟไหม้",tip:"ฟิวส์ขาดต้องเปลี่ยนใหม่ แต่เบรกเกอร์สับคืนได้"},
+{cat:"safety",level:2,q:"เหตุใดจึงห้ามจับอุปกรณ์ไฟฟ้าขณะมือเปียก",
+ options:["ทำให้อุปกรณ์เสีย","น้ำลดความต้านทานผิวหนัง เสี่ยงไฟดูดรุนแรง","เปลืองไฟ","ทำให้ไฟกระพริบ"],correct:1,
+ formula:"I = V ÷ R (ร่างกาย)",steps:"น้ำทำให้ความต้านทานผิวหนังลดลงมาก กระแสจึงไหลผ่านร่างกายได้มากขึ้นตามกฎของโอห์ม",tip:"ผิวแห้งต้านทานสูง แต่ผิวเปียกอาจเหลือเพียงไม่กี่ร้อยโอห์ม"},
+{cat:"safety",level:3,q:"อุปกรณ์ใดตรวจจับกระแสรั่วและตัดไฟเพื่อป้องกันไฟดูด",
+ options:["ฟิวส์ธรรมดา","เครื่องตัดไฟรั่ว (RCD/ELCB)","หม้อแปลง","ตัวเก็บประจุ"],correct:1,
+ formula:"",steps:"RCD/ELCB เปรียบเทียบกระแสไป-กลับ ถ้าต่างกัน (มีกระแสรั่ว) จะตัดไฟทันที",tip:"RCD ตัดไฟภายในเสี้ยววินาทีที่กระแสรั่วเพียงไม่กี่มิลลิแอมป์ ช่วยชีวิตได้"},
+{cat:"safety",level:3,q:"ตามมาตรฐานสากล สายดิน (Earth) มักใช้ฉนวนสีใด",
+ options:["สีแดง","สีดำ","สีเขียวแถบเหลือง","สีฟ้า"],correct:2,
+ formula:"",steps:"สายดินใช้สีเขียวแถบเหลือง, สายนิวทรัลมักสีฟ้า, สายไฟ (Line) สีน้ำตาล/ดำ",tip:"การใช้สีตามมาตรฐานช่วยให้ช่างต่อสายถูกต้องและปลอดภัย"},
+{cat:"safety",level:4,q:"อะไรคือปัจจัยที่ทำให้ไฟฟ้าเป็นอันตรายถึงชีวิตต่อร่างกายมากที่สุด",
+ options:["แรงดันสูงเพียงอย่างเดียว","ปริมาณกระแสที่ไหลผ่านร่างกาย","ความถี่สูง","สีของสายไฟ"],correct:1,
+ formula:"",steps:"กระแสที่ไหลผ่านหัวใจแม้เพียงไม่กี่สิบมิลลิแอมป์ก็ทำให้หัวใจเต้นผิดจังหวะได้",tip:"กระแสประมาณ 30 mA ขึ้นไปเริ่มอันตราย 100+ mA อาจถึงชีวิต"},
+{cat:"safety",level:4,q:"ไฟฟ้าลัดวงจร (Short Circuit) ก่อให้เกิดอันตรายอย่างไร",
+ options:["กระแสสูงผิดปกติ ทำให้สายร้อนจัดและอาจเกิดไฟไหม้","แรงดันเป็นศูนย์","ไม่มีอันตราย","ทำให้ไฟสว่างขึ้น"],correct:0,
+ formula:"I = V ÷ R (R ต่ำมาก)",steps:"การลัดวงจรทำให้ความต้านทานต่ำมาก กระแสจึงพุ่งสูงมาก เกิดความร้อนและประกายไฟ",tip:"เบรกเกอร์/ฟิวส์จึงสำคัญ เพราะตัดวงจรก่อนเกิดความเสียหาย"},
+{cat:"safety",level:5,q:"ก่อนซ่อมบำรุงอุปกรณ์ไฟฟ้า ควรปฏิบัติตามหลักการใดเพื่อความปลอดภัย",
+ options:["ทำงานขณะมีไฟเพื่อความรวดเร็ว","ตัดแยกระบบและล็อกป้องกันการจ่ายไฟ (Lockout-Tagout)","สวมถุงมือผ้าธรรมดา","รีบทำให้เสร็จเร็วที่สุด"],correct:1,
+ formula:"",steps:"ตัดไฟ ล็อกสวิตช์ ติดป้ายเตือน และตรวจสอบว่าไม่มีไฟค้างก่อนเริ่มงาน",tip:"Lockout-Tagout (LOTO) เป็นมาตรฐานความปลอดภัยป้องกันการจ่ายไฟโดยไม่ตั้งใจระหว่างซ่อม"}
+];
+/* ---------- meta ---------- */
+const levelMeta = [
+  {n:1,label:"พื้นฐานสุด",band:"basic"},   {n:2,label:"พื้นฐาน",band:"basic"},
+  {n:3,label:"เริ่มต้น",band:"beginner"},  {n:4,label:"เริ่มต้น+",band:"beginner"},
+  {n:5,label:"ปานกลาง",band:"medium"},     {n:6,label:"ปานกลาง+",band:"medium"},
+  {n:7,label:"ขั้นสูง",band:"advanced"},   {n:8,label:"ขั้นสูง+",band:"advanced"},
+  {n:9,label:"ผู้เชี่ยวชาญ",band:"expert"},{n:10,label:"ผู้เชี่ยวชาญสุด",band:"expert"}
+];
+const catMap = {}; categories.forEach(c=>catMap[c.id]=c);
+
+const state = {
+  category:"all", level:"mixed", count:10, mode:"practice",
+  timer:false, sound:true, theme:"dark",
+  list:[], current:0, answers:[], startTime:0, timerId:null
+};
+
+/* ---------- storage (safe) ---------- */
+const SKEY = "voltquiz_stats_v2";
+function loadStats(){ try{ return JSON.parse(localStorage.getItem(SKEY)) || {best:{},attempts:0}; }catch(e){ return {best:{},attempts:0}; } }
+function saveStats(s){ try{ localStorage.setItem(SKEY, JSON.stringify(s)); }catch(e){} }
+
+/* ---------- helpers ---------- */
+function esc(s){ return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function $(id){ return document.getElementById(id); }
+const LETTERS=["ก","ข","ค","ง"];
+
+function pickQuestions(catId, level, count){
+  let pool = questions.filter(q => catId==="all" || q.cat===catId);
+  if(level!=="mixed"){
+    const t=+level; let band=0, chosen=[];
+    while(chosen.length<count && band<=9){ chosen = pool.filter(q=>Math.abs(q.level-t)<=band); band++; }
+    pool = chosen.length ? chosen : pool;
+  }
+  pool = shuffle(pool.slice());
+  return pool.slice(0, Math.min(count, pool.length));
+}
+
+/* ---------- sound ---------- */
+let audioCtx=null;
+function beep(type){
+  if(!state.sound) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    const map={correct:[660,880],wrong:[220,160],click:[440,440],done:[523,784]};
+    const f=map[type]||[440,440];
+    o.type="sine"; o.frequency.setValueAtTime(f[0],audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(f[1],audioCtx.currentTime+0.12);
+    g.gain.setValueAtTime(0.15,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.22);
+    o.start(); o.stop(audioCtx.currentTime+0.24);
+  }catch(e){}
+}
+
+/* ---------- toast ---------- */
+let toastT=null;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2000); }
+
+/* ---------- screens ---------- */
+function showScreen(name){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $("screen-"+name).classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active", b.dataset.screen===name));
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(name==="stats") renderStats();
+  if(name==="home") renderHomeStats();
+}
+
+/* ---------- render home ---------- */
+function renderLevelChips(){
+  const wrap=$("levelChips"); wrap.innerHTML="";
+  const mix=document.createElement("div");
+  mix.className="lv-chip"+(state.level==="mixed"?" sel":"");
+  mix.innerHTML='<span class="dot" style="background:linear-gradient(90deg,var(--green),var(--red))"></span> ผสม';
+  mix.onclick=()=>{ setLevel("mixed"); };
+  wrap.appendChild(mix);
+  levelMeta.forEach(lv=>{
+    const c=document.createElement("div");
+    c.className="lv-chip"+(state.level==lv.n?" sel":"");
+    c.innerHTML='<span class="dot b-'+lv.band+'"></span> '+lv.n+' · '+lv.label;
+    c.onclick=()=>{ setLevel(lv.n); };
+    wrap.appendChild(c);
+  });
+}
+function renderCatGrid(){
+  const grid=$("catGrid"); grid.innerHTML="";
+  categories.forEach(c=>{
+    const n=questions.filter(q=>q.cat===c.id).length;
+    const card=document.createElement("div"); card.className="cat-card";
+    card.innerHTML='<div class="ci">'+c.icon+'</div><div class="cn">'+esc(c.name)+'</div>'+
+      '<div class="cd">'+esc(c.desc)+'</div><div class="cmeta"><span>'+n+' คำถาม</span><span class="cgo">เริ่มทำ →</span></div>';
+    card.onclick=()=>{ state.category=c.id; $("selCat").value=c.id; startQuiz(); };
+    grid.appendChild(card);
+  });
+}
+function renderHomeStats(){
+  const st=loadStats();
+  $("cTotal").textContent=questions.length;
+  $("cCats").textContent=categories.length;
+  $("cAtt").textContent=st.attempts||0;
+  const best=Math.max(0,...Object.values(st.best||{}).map(Number),(st.best&&st.best.all)||0);
+  $("cBest").textContent = (st.attempts>0)? best+"%" : "—";
+}
+
+/* ---------- controls ---------- */
+function fillSelectors(){
+  const sc=$("selCat"); sc.innerHTML='<option value="all">🎲 ทุกหมวด (รวม)</option>';
+  categories.forEach(c=>{ const o=document.createElement("option"); o.value=c.id; o.textContent=c.icon+" "+c.name; sc.appendChild(o); });
+  const sl=$("selLevel"); sl.innerHTML='<option value="mixed">ผสมทุกระดับ</option>';
+  levelMeta.forEach(lv=>{ const o=document.createElement("option"); o.value=lv.n; o.textContent="ระดับ "+lv.n+" · "+lv.label; sl.appendChild(o); });
+}
+function setLevel(v){ state.level=v; $("selLevel").value=v; renderLevelChips(); }
+function syncControls(){
+  $("selCat").value=state.category; $("selLevel").value=state.level; $("selCount").value=state.count;
+  document.querySelectorAll("#segMode button").forEach(b=>b.classList.toggle("on", b.dataset.mode===state.mode));
+  $("swTimer").classList.toggle("on",state.timer);
+  $("swSound").classList.toggle("on",state.sound);
+  $("swTheme").classList.toggle("on",state.theme==="light");
+  renderLevelChips();
+}
+
+/* ---------- quiz ---------- */
+function startQuiz(){
+  state.list = pickQuestions(state.category, state.level, state.count);
+  if(state.list.length===0){ toast("ไม่พบคำถามสำหรับเงื่อนไขนี้"); return; }
+  state.current=0; state.answers=new Array(state.list.length).fill(null);
+  const catLabel = state.category==="all" ? "ทุกหมวด" : catMap[state.category].name;
+  const lvLabel = state.level==="mixed" ? "ผสมทุกระดับ" : ("ระดับ "+state.level);
+  $("qPillCat").textContent="📚 "+catLabel;
+  $("qPillLv").textContent="🎚️ "+lvLabel;
+  $("qPillMode").textContent=(state.mode==="practice")?"📖 ฝึกฝน":"📝 สอบจริง";
+  $("qTimer").style.display = state.timer ? "flex" : "none";
+  if(state.timer) startTimer();
+  closeSidebar();
+  showScreen("quiz");
+  renderQuestion();
+}
+function startTimer(){
+  state.startTime=Date.now();
+  clearInterval(state.timerId);
+  state.timerId=setInterval(()=>{
+    const s=Math.floor((Date.now()-state.startTime)/1000);
+    const m=String(Math.floor(s/60)).padStart(2,"0"), ss=String(s%60).padStart(2,"0");
+    $("timerTxt").textContent=m+":"+ss;
+  },1000);
+}
+function stopTimer(){ clearInterval(state.timerId); }
+
+function explHTML(q){
+  let h="";
+  if(q.formula) h+='<div class="exp-row exp-formula"><span class="exp-label">📐 สูตร</span><span class="ftext">'+esc(q.formula)+'</span></div>';
+  if(q.steps)   h+='<div class="exp-row exp-steps"><span class="exp-label">🧮 วิธีคิด</span>'+esc(q.steps)+'</div>';
+  if(q.tip)     h+='<div class="exp-row exp-tip"><span class="exp-label">💡 เกร็ดความรู้</span>'+esc(q.tip)+'</div>';
+  return h;
+}
+function renderQuestion(){
+  const q=state.list[state.current];
+  const total=state.list.length;
+  $("progFill").style.width=(state.current/total*100)+"%";
+  $("qCounter").textContent="ข้อ "+(state.current+1)+" / "+total;
+  $("qBadge").innerHTML=catMap[q.cat].icon+" "+esc(catMap[q.cat].name)+" · ระดับ "+q.level;
+  $("qText").textContent=(state.current+1)+". "+q.q;
+  const ol=$("qOptions"); ol.innerHTML="";
+  q.options.forEach((opt,i)=>{
+    const d=document.createElement("div"); d.className="option";
+    d.innerHTML='<div class="letter">'+LETTERS[i]+'</div><div class="otxt">'+esc(opt)+'</div>';
+    d.onclick=()=>selectAnswer(i);
+    ol.appendChild(d);
+  });
+  const exp=$("qExp"); exp.className="exp"; exp.innerHTML=""; $("qAskAI").style.display="none";
+  const nb=$("nextBtn");
+  nb.textContent=(state.current===total-1)?"ดูผลคะแนน →":"ข้อถัดไป →";
+  nb.disabled = (state.mode==="exam") ? (state.answers[state.current]===null) : true;
+  // restore selection if revisiting in exam mode
+  if(state.mode==="exam" && state.answers[state.current]!==null){
+    ol.children[state.answers[state.current]].classList.add("sel");
+  }
+}
+function selectAnswer(idx){
+  const q=state.list[state.current];
+  const opts=$("qOptions").children;
+  if(state.mode==="exam"){
+    state.answers[state.current]=idx;
+    for(const o of opts) o.classList.remove("sel");
+    opts[idx].classList.add("sel");
+    beep("click");
+    $("nextBtn").disabled=false;
+    return;
+  }
+  // practice mode: lock + reveal
+  if(state.answers[state.current]!==null) return;
+  state.answers[state.current]=idx;
+  for(const o of opts) o.classList.add("lock");
+  if(idx===q.correct){ opts[idx].classList.add("correct"); opts[idx].innerHTML+='<span class="mk">✓</span>'; beep("correct"); }
+  else{ opts[idx].classList.add("wrong"); opts[idx].innerHTML+='<span class="mk">✗</span>';
+        opts[q.correct].classList.add("correct"); opts[q.correct].innerHTML+='<span class="mk">✓</span>'; beep("wrong"); }
+  const exp=$("qExp"); exp.innerHTML=explHTML(q); exp.className="exp show";
+  $("qAskAI").style.display="inline-flex";
+  $("nextBtn").disabled=false;
+}
+function nextQuestion(){
+  if($("nextBtn").disabled) return;
+  state.current++;
+  if(state.current>=state.list.length) showResult();
+  else renderQuestion();
+}
+
+/* ---------- result ---------- */
+function showResult(){
+  stopTimer();
+  let score=0;
+  state.list.forEach((q,i)=>{ if(state.answers[i]===q.correct) score++; });
+  const total=state.list.length, pct=Math.round(score/total*100);
+  $("rPct").textContent=pct+"%"; $("rScore").textContent=score+" / "+total;
+  const col = pct>=80?"var(--green)":pct>=50?"var(--accent)":"var(--red)";
+  $("ring").style.background="conic-gradient("+col+" "+(pct*3.6)+"deg, var(--panel-2) 0deg)";
+  $("rPct").style.color=col;
+  const ring=$("ring"); ring.classList.toggle("pulse",pct>=80);
+  let msg,sub;
+  if(pct>=80){ msg="ยอดเยี่ยมมาก! 🎉"; sub="คุณเข้าใจเนื้อหานี้ได้ดีเยี่ยม"; beep("done"); }
+  else if(pct>=50){ msg="ทำได้ดี 👍"; sub="ใกล้เก่งแล้ว ลองทบทวนข้อที่พลาดอีกนิด"; }
+  else{ msg="ลองทบทวนอีกครั้ง 💪"; sub="อ่านเฉลยด้านล่างเพื่อทำความเข้าใจให้ลึกขึ้น"; }
+  $("rMsg").textContent=msg; $("rSub").textContent=sub;
+  let timeHtml="";
+  if(state.timer){ const s=Math.floor((Date.now()-state.startTime)/1000); timeHtml='<div class="res-stat"><div class="v" style="color:var(--blue)">'+Math.floor(s/60)+":"+String(s%60).padStart(2,"0")+'</div><div class="l">เวลาที่ใช้</div></div>'; }
+  $("rStats").innerHTML='<div class="res-stat"><div class="v" style="color:var(--green)">'+score+'</div><div class="l">ตอบถูก</div></div>'+
+    '<div class="res-stat"><div class="v" style="color:var(--red)">'+(total-score)+'</div><div class="l">ตอบผิด</div></div>'+timeHtml;
+  // save stats
+  const st=loadStats(); st.attempts=(st.attempts||0)+1; st.best=st.best||{};
+  const key=state.category;
+  if(!st.best[key] || pct>st.best[key]) st.best[key]=pct;
+  if(!st.best.all || pct>st.best.all) st.best.all=pct;
+  saveStats(st);
+  renderReview();
+  showScreen("result");
+}
+function renderReview(){
+  const rl=$("reviewList");
+  rl.innerHTML='<h3>📋 เฉลยและคำอธิบายละเอียด</h3>';
+  state.list.forEach((q,i)=>{
+    const sel=state.answers[i], ok=sel===q.correct;
+    const div=document.createElement("div"); div.className="review-item";
+    let h='<div class="rq">'+(i+1)+". "+esc(q.q)+'</div>';
+    const selTxt = sel===null ? "ไม่ได้ตอบ" : (LETTERS[sel]+". "+esc(q.options[sel]));
+    h+='<div class="ra '+(ok?"ok":"no")+'">'+(ok?"✓":"✗")+' คำตอบของคุณ: '+selTxt+'</div>';
+    if(!ok) h+='<div class="ra tru">✓ คำตอบที่ถูก: '+LETTERS[q.correct]+". "+esc(q.options[q.correct])+'</div>';
+    h+='<div class="exp show" style="margin-top:10px;">'+explHTML(q)+'</div>';
+    h+='<button class="ai-ask-btn" data-aiqi="'+i+'">🤖 ถาม AI เกี่ยวกับข้อนี้</button>';
+    div.innerHTML=h; rl.appendChild(div);
+  });
+}
+
+/* ---------- stats screen ---------- */
+function renderStats(){
+  const st=loadStats(); const box=$("statsBox");
+  $("statsAtt").textContent="ทำแบบทดสอบไปแล้ว "+(st.attempts||0)+" ครั้ง";
+  if(!st.attempts){ box.innerHTML='<div class="empty">ยังไม่มีสถิติ 📊<br>เริ่มทำแบบทดสอบเพื่อบันทึกคะแนนสูงสุดของแต่ละหมวด<br><span style="font-size:.8rem">(คะแนนบันทึกในเบราว์เซอร์นี้เท่านั้น)</span></div>'; return; }
+  let h='';
+  const allBest=st.best.all||0;
+  h+='<div class="stat-bar-row"><div class="nm">🎲 รวมทุกหมวด (สูงสุด)</div><div class="stat-bar"><i style="width:'+allBest+'%"></i></div><div class="pv">'+allBest+'%</div></div>';
+  categories.forEach(c=>{
+    const b=st.best[c.id];
+    if(b!==undefined){
+      h+='<div class="stat-bar-row"><div class="nm">'+c.icon+' '+esc(c.name)+'</div><div class="stat-bar"><i style="width:'+b+'%"></i></div><div class="pv">'+b+'%</div></div>';
+    }
+  });
+  box.innerHTML=h;
+}
+
+/* ---------- sidebar / mobile ---------- */
+function openSidebar(){ $("sidebar").classList.add("open"); $("overlay").classList.add("show"); }
+function closeSidebar(){ $("sidebar").classList.remove("open"); $("overlay").classList.remove("show"); }
+
+/* ---------- theme ---------- */
+function applyTheme(){ document.body.setAttribute("data-theme", state.theme); }
+
+/* ---------- AI chat ---------- */
+const AICFG="voltquiz_ai_cfg_g";
+const AI_DEFAULT_MODEL="gemini-2.5-flash";
+function loadAICfg(){ try{ const c=JSON.parse(localStorage.getItem(AICFG))||{}; return {mode:c.mode==="proxy"?"proxy":"key", key:c.key||"", proxy:c.proxy||"", model:c.model||AI_DEFAULT_MODEL}; }catch(e){ return {mode:"key",key:"",proxy:"",model:AI_DEFAULT_MODEL}; } }
+function saveAICfg(c){ try{ localStorage.setItem(AICFG, JSON.stringify(c)); }catch(e){} }
+let aiCfg = loadAICfg();
+let aiState = {q:null, msgs:[], busy:false};
+
+function aiSystem(q){
+  let s = "คุณคือผู้ช่วย AI ติวเตอร์วิชาวิศวกรรมไฟฟ้าในแอป VOLT QUIZ ตอบเป็นภาษาไทยที่เข้าใจง่าย เป็นกันเอง และกระชับ "
+    + "อธิบายแนวคิด สูตร และวิธีคิดทีละขั้นตอน ใช้ตัวอย่างหรือการเปรียบเทียบเมื่อช่วยให้เข้าใจ "
+    + "ถ้ามีการคำนวณให้แสดงสูตรและการแทนค่าอย่างชัดเจน ตอบเฉพาะเรื่องไฟฟ้า อิเล็กทรอนิกส์ และฟิสิกส์ที่เกี่ยวข้อง "
+    + "ถ้าถูกถามนอกเรื่องให้ดึงกลับมาที่การเรียนอย่างสุภาพ ไม่ต้องยาวเกินไป เน้นให้ผู้เรียนเข้าใจจริง";
+  if(q){
+    s += "\n\nบริบทโจทย์ที่ผู้เรียนกำลังถาม:\nคำถาม: " + q.q + "\nตัวเลือก:\n";
+    q.options.forEach((o,i)=>{ s += LETTERS[i] + ") " + o + (i===q.correct ? "  ← คำตอบที่ถูกต้อง" : "") + "\n"; });
+    if(q.formula) s += "สูตรที่เกี่ยวข้อง: " + q.formula + "\n";
+    if(q.steps)   s += "วิธีคิดในระบบ: " + q.steps + "\n";
+    if(q.tip)     s += "เกร็ดความรู้: " + q.tip + "\n";
+    s += "ช่วยอธิบายให้ผู้เรียนเข้าใจตามที่เขาถาม";
+  }
+  return s;
+}
+async function callAI(messages, system){
+  const model = (aiCfg.model || AI_DEFAULT_MODEL).trim();
+  const contents = messages.map(m=>({ role: m.role==="assistant" ? "model" : "user", parts:[{text:m.content}] }));
+  const body = { contents, generationConfig:{ maxOutputTokens:1024, temperature:0.7 } };
+  if(system) body.systemInstruction = {parts:[{text:system}]};
+  let url;
+  if(aiCfg.mode==="proxy" && aiCfg.proxy){ url = aiCfg.proxy; }
+  else { url = "https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+encodeURIComponent(aiCfg.key||""); }
+  const res = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  if(!res.ok){
+    let msg="HTTP "+res.status;
+    try{ const j=await res.json(); if(j && j.error && j.error.message) msg=j.error.message; }catch(e){}
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  let t="";
+  const cand = data.candidates && data.candidates[0];
+  if(cand && cand.content && cand.content.parts){ t = cand.content.parts.map(p=>p.text||"").join("").trim(); }
+  if(!t && data.promptFeedback && data.promptFeedback.blockReason) return "(คำถามถูกตัวกรองความปลอดภัยของ Gemini บล็อก: "+data.promptFeedback.blockReason+")";
+  if(!t && cand && cand.finishReason && cand.finishReason!=="STOP") return "(การตอบถูกหยุด: "+cand.finishReason+" — ลองถามใหม่หรือเปลี่ยนคำถาม)";
+  return t || "(ไม่มีข้อความตอบกลับ)";
+}
+function addBubble(kind, text){
+  const d=document.createElement("div"); d.className="ai-bubble "+kind; d.textContent=text;
+  $("aiMsgs").appendChild(d); $("aiMsgs").scrollTop=$("aiMsgs").scrollHeight; return d;
+}
+function renderAIChips(){
+  const chips = aiState.q
+    ? ["อธิบายเพิ่มแบบง่ายๆ","ทำไมตัวเลือกอื่นถึงผิด","ขอตัวอย่างในชีวิตจริง","สรุปสูตรที่ใช้"]
+    : ["กฎของโอห์มคืออะไร","AC ต่างจาก DC ยังไง","ตัวเก็บประจุทำงานอย่างไร","ความปลอดภัยทางไฟฟ้าเบื้องต้น"];
+  const w=$("aiChips"); w.innerHTML="";
+  chips.forEach(c=>{ const b=document.createElement("button"); b.className="ai-chip"; b.textContent=c; b.onclick=()=>sendAI(c); w.appendChild(b); });
+}
+function autoGrow(t){ t.style.height="auto"; t.style.height=Math.min(t.scrollHeight,120)+"px"; }
+function openAI(q){
+  aiState.q=q||null; aiState.msgs=[]; aiState.busy=false;
+  $("aiSub").textContent = (q ? "อธิบายโจทย์ข้อนี้" : "ถาม-ตอบเรื่องไฟฟ้า") + " · Gemini";
+  const ctx=$("aiCtx");
+  if(q){ ctx.className="ai-ctx show"; ctx.innerHTML="📌 <b>โจทย์:</b> "+esc(q.q); }
+  else { ctx.className="ai-ctx"; ctx.innerHTML=""; }
+  $("aiMsgs").innerHTML="";
+  addBubble("sys", q ? "ถามได้เลยครับ เช่น \"ทำไมคำตอบนี้ถึงถูก\" หรือ \"อธิบายสูตรให้หน่อย\"" : "สวัสดีครับ 🤖 ถามอะไรเกี่ยวกับวิชาไฟฟ้าได้เลย");
+  renderAIChips();
+  $("aiSettings").classList.remove("show");
+  $("aiModal").classList.add("open");
+  document.body.style.overflow="hidden";
+  closeSidebar();
+  setTimeout(()=>$("aiText").focus(),250);
+}
+function closeAI(){ $("aiModal").classList.remove("open"); $("aiSettings").classList.remove("show"); document.body.style.overflow=""; }
+async function sendAI(text){
+  text=(text||"").trim();
+  if(!text || aiState.busy) return;
+  aiState.busy=true; $("aiSend").disabled=true;
+  aiState.msgs.push({role:"user",content:text}); addBubble("me",text);
+  $("aiText").value=""; autoGrow($("aiText"));
+  const typing=document.createElement("div"); typing.className="ai-typing"; typing.innerHTML="<i></i><i></i><i></i>";
+  $("aiMsgs").appendChild(typing); $("aiMsgs").scrollTop=$("aiMsgs").scrollHeight;
+  try{
+    const reply = await callAI(aiState.msgs, aiSystem(aiState.q));
+    typing.remove(); aiState.msgs.push({role:"assistant",content:reply}); addBubble("bot",reply);
+  }catch(e){
+    typing.remove();
+    addBubble("bot","⚠️ เชื่อมต่อ Gemini ไม่สำเร็จ ("+(e.message||"error")+")\n\n• กดไอคอน ⚙️ ด้านบน แล้วใส่ Gemini API Key (ขอฟรีที่ aistudio.google.com/apikey) หรือใช้โหมด Proxy\n• ตรวจสอบว่าคีย์ถูกต้องและชื่อโมเดลใช้งานได้ (เช่น gemini-2.5-flash)\n\nระหว่างนี้ดูเฉลยในระบบ (สูตร / วิธีคิด / เกร็ดความรู้) ที่แสดงไว้ใต้โจทย์ได้เลยครับ");
+  }
+  aiState.busy=false; $("aiSend").disabled=false; $("aiMsgs").scrollTop=$("aiMsgs").scrollHeight;
+}
+function renderAISettings(){
+  document.querySelectorAll("#aiModeSeg button").forEach(b=>b.classList.toggle("on", b.dataset.m===aiCfg.mode));
+  $("aiKeyField").style.display = aiCfg.mode==="key" ? "block" : "none";
+  $("aiProxyField").style.display = aiCfg.mode==="proxy" ? "block" : "none";
+  $("aiKey").value=aiCfg.key||""; $("aiProxy").value=aiCfg.proxy||""; $("aiModel").value=aiCfg.model||AI_DEFAULT_MODEL;
+  const w=$("aiWarn");
+  if(aiCfg.mode==="key") w.innerHTML="⚠️ คีย์ถูกเก็บในเบราว์เซอร์นี้เท่านั้น (localStorage) <b>อย่าใส่คีย์ลงไฟล์ที่ push ขึ้น GitHub และอย่าแชร์หน้าเว็บสาธารณะที่ใส่คีย์ไว้</b> เหมาะกับเครื่องส่วนตัว";
+  else w.innerHTML="แนะนำสำหรับเว็บสาธารณะ: ตั้ง Proxy (เช่น Cloudflare Worker / Vercel) ที่เก็บคีย์ฝั่งเซิร์ฟเวอร์ แล้วส่งต่อไป generativelanguage.googleapis.com — คีย์จะไม่รั่วในเบราว์เซอร์";
+}
+function initAI(){
+  $("navAI").onclick=()=>openAI(null);
+  $("aiClose").onclick=closeAI; $("aiBack").onclick=closeAI;
+  $("aiGear").onclick=()=>{ const s=$("aiSettings"); s.classList.toggle("show"); if(s.classList.contains("show")) renderAISettings(); };
+  document.querySelectorAll("#aiModeSeg button").forEach(b=>b.onclick=()=>{ aiCfg.mode=b.dataset.m; saveAICfg(aiCfg); renderAISettings(); });
+  $("aiKey").oninput=e=>{ aiCfg.key=e.target.value.trim(); saveAICfg(aiCfg); };
+  $("aiProxy").oninput=e=>{ aiCfg.proxy=e.target.value.trim(); saveAICfg(aiCfg); };
+  $("aiModel").oninput=e=>{ aiCfg.model=e.target.value.trim()||AI_DEFAULT_MODEL; saveAICfg(aiCfg); };
+  $("aiSend").onclick=()=>sendAI($("aiText").value);
+  $("aiText").addEventListener("input",e=>autoGrow(e.target));
+  $("aiText").addEventListener("keydown",e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendAI($("aiText").value); } });
+  $("qAskAI").onclick=()=>{ if(state.list[state.current]) openAI(state.list[state.current]); };
+  $("reviewList").addEventListener("click",e=>{ const b=e.target.closest("[data-aiqi]"); if(b) openAI(state.list[+b.dataset.aiqi]); });
+}
+
+/* ---------- wire up ---------- */
+function init(){
+  fillSelectors(); syncControls(); renderLevelChips(); renderCatGrid(); renderHomeStats();
+  $("footTotal").textContent=questions.length; $("footCats").textContent=categories.length;
+
+  document.querySelectorAll(".nav-btn[data-screen]").forEach(b=>b.onclick=()=>{ showScreen(b.dataset.screen); closeSidebar(); });
+  $("selCat").onchange=e=>state.category=e.target.value;
+  $("selLevel").onchange=e=>{ state.level=(e.target.value==="mixed")?"mixed":+e.target.value; renderLevelChips(); };
+  $("selCount").onchange=e=>state.count=+e.target.value;
+  document.querySelectorAll("#segMode button").forEach(b=>b.onclick=()=>{ state.mode=b.dataset.mode; syncControls(); });
+  $("startSide").onclick=startQuiz;
+  $("quickStart").onclick=()=>{ state.category="all"; state.level="mixed"; syncControls(); startQuiz(); };
+  $("refreshStart").onclick=()=>{ startQuiz(); toast("สุ่มชุดคำถามใหม่แล้ว 🔄"); };
+
+  $("swTimer").onclick=()=>{ state.timer=!state.timer; syncControls(); };
+  $("swSound").onclick=()=>{ state.sound=!state.sound; syncControls(); if(state.sound) beep("click"); };
+  $("swTheme").onclick=()=>{ state.theme=state.theme==="light"?"dark":"light"; applyTheme(); syncControls(); };
+
+  $("nextBtn").onclick=nextQuestion;
+  $("quitBtn").onclick=()=>{ stopTimer(); showScreen("home"); };
+  $("rNew").onclick=()=>{ startQuiz(); toast("สุ่มชุดใหม่ 🔄"); };
+  $("rRetry").onclick=()=>{ state.current=0; state.answers=new Array(state.list.length).fill(null); if(state.timer) startTimer(); showScreen("quiz"); renderQuestion(); };
+  $("rHome").onclick=()=>showScreen("home");
+
+  $("menuBtn").onclick=openSidebar; $("overlay").onclick=closeSidebar;
+
+  document.addEventListener("keydown",e=>{
+    if($("aiModal").classList.contains("open")) return;
+    const ae=document.activeElement;
+    if(ae && ["INPUT","TEXTAREA","SELECT"].includes(ae.tagName)) return;
+    if(!$("screen-quiz").classList.contains("active")) return;
+    if(["1","2","3","4"].includes(e.key)){ const i=+e.key-1; const opts=$("qOptions").children; if(opts[i]) selectAnswer(i); }
+    else if(e.key==="Enter"){ nextQuestion(); }
+  });
+}
+init();
+initAI();
+</script>
+</body>
+</html>
